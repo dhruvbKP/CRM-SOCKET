@@ -1,0 +1,238 @@
+/* xl */
+
+@media(max-width:1399px){
+    .container{
+        max-width: 1140px;
+    }
+
+    /* ABOUT-TREATMENTS */
+
+    .about-treatments{
+        padding: 5px;
+    }
+    .about-treatments .row .col-6:first-child h2{
+        font-size: 40px;
+    }
+    .about-treatments .row .col-6:first-child p{
+        font-size: 18px;
+        line-height: 25px;
+        letter-spacing: 2px;
+        word-spacing: 5px;
+        color: #8492a6;
+    }
+
+}
+
+/* lg */
+
+@media(max-width:1199px){
+    .container{
+        max-width: 960px;
+    }
+
+    /* HEADER */
+
+    header .navbar .container nav ul li{
+        position: absolute;
+        top: 68px;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.5);
+        display: none;
+    }
+    header .navbar .container nav .toggle{
+        display: block;
+    }
+
+    /* ABOUT-TREATMENTS */
+
+    .about-treatments .row .col-6:first-child p{
+        font-size: 18px;
+        line-height: 22px;
+        letter-spacing: 2px;
+        word-spacing: 5px;
+        color: #8492a6;
+    }
+
+    /* DOCTOR-TEAM */
+
+    .doctor-team .row{
+        padding-left: 100px;
+    }
+    .doctor-team .row .col-xl-3 .card{
+        margin-top: 50px;
+    }
+    .doctor-team .row .col-xl-3 .card img{
+        object-fit: cover;
+        max-height: 250px;
+    }
+    .doctor-team .row .col-xl-3 .card .card-body
+    a i{
+        font-size: 27px;
+    }
+
+    /* FOOTER */
+
+    footer .col-3:first-child .social a img{
+        width: 20px;
+        height: 20px;
+        margin: 5px 10px;
+    }
+
+}
+
+/* md */
+
+@media(max-width:991px){
+    .container{
+        max-width: 720px;
+    }
+
+    /* ABOUT-TREATMENTS */
+
+    .about-treatments .row .col-6{
+        width: 720px;
+        text-align: center;
+    }
+    .about-treatments .row .col-6:first-child button{
+        margin-top: 20px;
+    }
+    .about-treatments .row .col-6:last-child{
+        margin-top: 50px;
+    }
+
+    /* DOCTOR-TEAM */
+
+    .doctor-team .container .heading p{
+        padding: 0 0px;
+        margin-bottom: 50px;
+        color: #8492a6;
+    }
+    .doctor-team .row{
+        padding-left: 40px;
+    }
+    .doctor-team .row .col-xl-3{
+        margin-top: 30px;
+    }
+    .doctor-team .row .col-xl-3 .card{
+        border: 1px solid rgba(59, 57, 57, 0.562);
+    }
+    .doctor-team .row .col-xl-3 .card img{
+        object-fit: cover;
+        height: 250px;
+    }
+    .doctor-team .row .col-xl-3 .card .card-body
+    a i{
+        font-size: 27px;
+    }
+
+    /* FOOTER */
+
+    footer .col-xl-3{
+        margin-bottom: 100px;
+    }
+
+}
+
+
+/* sm */
+
+@media(max-width:767px){
+
+    .container{
+        max-width: 540px;
+    }
+
+    /* ABOUT-TREATMENTS */
+
+    .about-treatments .row .col-6{
+        width: 540px;
+        text-align: center;
+    }
+    .about-treatments .row .col-6:first-child p{
+        font-size: 15px;
+        line-height: 20px;
+        letter-spacing: 2px;
+        word-spacing: 5px;
+        color: #8492a6;
+    }
+    .about-treatments .row .col-6:first-child button{
+        margin-top: 20px;
+    }
+    .about-treatments .row .col-6:last-child{
+        margin-top: 50px;
+    }
+
+    /* SERVICES */
+
+    .services .container .text-center .heading{
+        color: #8492a6;
+        padding: 0;
+        margin-bottom: 50px;
+    }
+
+    /* DOCTOR-TEAM */
+
+    .doctor-team .row{
+        padding-left: 120px;
+    }
+    .doctor-team .container .heading p{
+        padding: 0 0px;
+        margin-bottom: 50px;
+        color: #8492a6;
+    }
+    .doctor-team .row .col-xl-3{
+        width: 100%;
+    }
+    .doctor-team .row .col-xl-3 .card img{
+        object-fit: cover;
+        max-height: 250px;
+    }
+    .doctor-team .row .col-xl-3 .card .card-body
+    a i{
+        font-size: 27px;
+    }
+
+    /* FOOTER */
+
+    footer{
+        text-align: center;
+    }
+    footer .col-xl-3{
+        margin-bottom: 50px;
+    }
+    .footer .col-xl-3:first-child .img{
+        position: relative;
+    }
+    .footer .col-xl-3:first-child .img img{
+        position: absolute;
+        top: 0;
+        left: 202px;
+    }
+    .footer .col-xl-3:nth-of-type(2) h2{
+        padding-left: 8px;
+    }
+    .footer .col-xl-3:nth-of-type(2) ul a{
+        display: block;
+        padding-right: 50px;
+    }
+
+
+}
+
+
+/* xs */
+
+@media(max-width:575px){
+    .container{
+        max-width: 100%;
+    }
+
+    /* SERVICES */
+
+    .services .container .text-center .heading{
+        color: #8492a6;
+        padding: 0;
+        margin-bottom: 50px;
+    }
+}

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="au theme template">
+    <meta name="author" content="Hau Nguyen">
+    <meta name="keywords" content="au theme template">
+
+    <!-- Title Page-->
+    <title>Dashboard</title>
+
+    <!-- Fontfaces CSS-->
+    <link href="/css/font-face.css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="/vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
+    <link href="/vendor/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
+    <link href="/vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
+
+    <!-- Bootstrap CSS-->
+    <link href="/vendor/bootstrap-4.1/bootstrap.min.css" rel="stylesheet" media="all">
+
+    <!-- Vendor CSS-->
+    <link href="/vendor/animsition/animsition.min.css" rel="stylesheet" media="all">
+    <link href="/vendor/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet" media="all">
+    <link href="/vendor/wow/animate.css" rel="stylesheet" media="all">
+    <link href="/vendor/css-hamburgers/hamburgers.min.css" rel="stylesheet" media="all">
+    <link href="/vendor/slick/slick.css" rel="stylesheet" media="all">
+    <link href="/vendor/select2/select2.min.css" rel="stylesheet" media="all">
+    <link href="/vendor/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" media="all">
+
+    <!-- Leaflet css -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- Main CSS-->
+    <link href="/css/theme.css" rel="stylesheet" media="all">
+
+    <link rel="icon" href="/images/icon/logo-mini.png">
+
+    <style>
+        /* Modal container */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Black with opacity */
+        }
+
+        /* Modal content */
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            /* 15% from top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            /* Width of the modal */
+            max-width: 500px;
+            /* Maximum width */
+            border-radius: 10px;
+            /* Optional: rounded corners */
+        }
+
+        /* Close button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+
+<body class="animsition">
+    <div class="page-wrapper">
+        <!-- HEADER MOBILE-->
+        <header class="header-mobile d-block d-lg-none">
+            <div class="header-mobile__bar">
+                <div class="container-fluid">
+                    <div class="header-mobile-inner">
+                        <a class="logo" href="/index.html">
+                            <img src="/images/icon/logo.png" alt="CoolAdmin" />
+                        </a>
+                        <button class="hamburger hamburger--slider" type="button">
+                            <span class="hamburger-box">
+                                <span class="hamburger-inner"></span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <nav class="navbar-mobile">
+                <div class="container-fluid">
+                    <ul class="navbar-mobile__list list-unstyled">
+                        <li class="has-sub">
+                            <a class="js-arrow" href="/admin">
+                                <i class="fas fa-tachometer-alt"></i>Dashboard
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- END HEADER MOBILE-->
+
+        <!-- MENU SIDEBAR-->
+        <aside class="menu-sidebar d-none d-lg-block">
+            <div class="logo">
+                <a href="#">
+                    <img src="/images/icon/logo.png" alt="Cool Admin" />
+                </a>
+            </div>
+            <div class="menu-sidebar__content js-scrollbar1">
+                <nav class="navbar-sidebar">
+                    <form id="pushForm">
+                        <input id="pushTitle" type="text" name="pushTitle"
+                            style="border: 0.5px solid black; padding: 5px; width: 190px; margin-bottom: 10px;"
+                            placeholder="Title...">
+                        <input id="pushMessage" type="text" name="pushMessage"
+                            style="border: 0.5px solid black; padding: 5px; width: 190px;"
+                            placeholder="Notification...">
+                        <button class="btn btn-primary mt-2 ">Send</button>
+                    </form>
+                    <hr id="hr" style="display: none; height: 0.5px; background-color: black;" />
+                    <ul id="ul" class="userName list-unstyled navbar__list">
+                    </ul>
+                    <hr style="height: 1px; background-color: black;">
+                    <h2 style="margin: 10px 0 20px 0">All users</h2>
+                    <div id="selectAll" style="display: flex; margin-bottom: 20px;">
+                        <input id="selectAllCheckBox" type="checkBox" style="width: 20px; margin-right: 10px;">
+                        <h5 style="font-size: 18px;">Select all</h5>
+                    </div>
+                    <ul class="userName list-unstyled navbar__list">
+                        <% for(u of user) { %>
+                            <li style="margin-bottom: 20px;">
+                                <div style="display: flex;">
+                                    <input class="userCheckBox" value="<%= u.t_id %>" type="checkbox"
+                                        style="margin-right: 10px; width: 20px;">
+                                    <h3 style="cursor: pointer; font-size: 18px;">
+                                        <%= u.user_name %>
+                                    </h3>
+                                </div>
+                            </li>
+                            <% } %>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        <!-- END MENU SIDEBAR-->
+
+        <!-- PAGE CONTAINER-->
+        <div class="page-container">
+            <!-- HEADER DESKTOP-->
+            <header class="header-desktop">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid">
+                        <div class="header-wrap">
+                            <div style="display: flex; align-items: ceneter;">
+                                <h3 style="margin-right: 5px;">Active users <spna style="margin-left: 5px;">:-</spna>
+                                </h3>
+                                <h3 id="totalUser"></h3>
+                            </div>
+                            <div class="header-button ml-auto">
+                                <div class="account-wrap">
+                                    <div class="account-item clearfix js-item-menu">
+                                        <div class="image">
+                                            <img src="/images/icon/avatar-01.jpg" alt="John Doe" />
+                                        </div>
+                                        <div class="content">
+                                            <a class="js-acc-btn" href="#">
+                                                <% for(c of currentUser) { %>
+                                                    <%= c.name %>
+                                                        <% } %>
+                                            </a>
+                                        </div>
+                                        <div class="account-dropdown js-dropdown">
+                                            <div class="info clearfix">
+                                                <div class="image">
+                                                    <a href="#">
+                                                        <img src="/images/icon/avatar-01.jpg" alt="John Doe" />
+                                                    </a>
+                                                </div>
+                                                <div class="content">
+                                                    <h5 class="name">
+                                                        <a href="#">
+                                                            <% for(c of currentUser) { %>
+                                                                <%= c.name %>
+                                                                    <% } %>
+                                                        </a>
+                                                    </h5>
+                                                    <span class="email">johndoe@example.com</span>
+                                                </div>
+                                            </div>
+                                            <div class="account-dropdown__body">
+                                                <div class="account-dropdown__item">
+                                                    <a href="#">
+                                                        <i class="zmdi zmdi-account"></i>Account</a>
+                                                </div>
+                                                <div class="account-dropdown__item">
+                                                    <a href="#">
+                                                        <i class="zmdi zmdi-settings"></i>Setting</a>
+                                                </div>
+                                                <div class="account-dropdown__item">
+                                                    <a href="#">
+                                                        <i class="zmdi zmdi-money-box"></i>Billing</a>
+                                                </div>
+                                            </div>
+                                            <div class="account-dropdown__footer">
+                                                <a href="/admin/logout">
+                                                    <i class="zmdi zmdi-power"></i>Logout</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- HEADER DESKTOP-->
+
+            <!-- MAIN CONTENT-->
+            <div class="main-content">
+                <div class="section__content section__content--p30">
+                    <div class="container-fluid">
+                        <div id="notificationModel" class="modal">
+                            <!-- Modal content -->
+                            <div class="modal-content">
+                                <span class="close">&times;</span>
+                                <h2 style="text-align: center; margin-bottom: 20px;">Send notification</h2>
+                                <div style="text-align: center;">
+                                    <form id="notificationForm">
+                                        <input id="notificationTitle" type="text" name="notificationTitle"
+                                            style="border: 0.5px solid black; padding: 5px; width: 340px; border-radius: 10px; margin-bottom: 10px;"
+                                            placeholder="Title..."><br>
+                                        <input id="notificationMessage" type="text" name="notificationMessage"
+                                            style="border: 0.5px solid black; padding: 5px; width: 340px; border-radius: 10px; margin-bottom: 10px;"
+                                            placeholder="Notification..."><br>
+                                            <select id="notificationPosition" name="notificationPosition"
+                                            style="border: 0.5px solid black; padding: 5px; width: 340px; border-radius: 10px;">
+                                            <option value="">--Select Position--</option>
+                                            <option value="topRight">Top Right</option>
+                                            <option value="topCenter">Top Center</option>
+                                            <option value="topLeft">Top Left</option>
+                                            <option value="middleRight">Middle Right</option>
+                                            <option value="middleCenter">Middle Center</option>
+                                            <option value="middleLeft">Middle Left</option>
+                                            <option value="bottomRight">Bottom Right</option>
+                                            <option value="bottomCenter">Bottom Center</option>
+                                            <option value="bottomLeft">Bottom Left</option>
+                                        </select><br>
+                                        <button id="sendNotification" class="btn btn-primary mt-2"
+                                            style="border-radius: 20px;">Send</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="data" style="display: flex; justify-content: space-evenly; display: none;"
+                            class="row m-t-25">
+                            <div class="">
+                                <div id="ipInfo" class="overview-item overview-item--c1">
+                                    <div class="overview__inner">
+                                        <div class="overview-box clearfix">
+                                            <div class="icon">
+                                                <i class="fa-solid fa-globe"></i>
+                                            </div>
+                                            <hr>
+                                            <div class="text">
+                                                <h2>Ip address</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <div id="deviceinfo" class="overview-item overview-item--c2">
+                                    <div class="overview__inner">
+                                        <div class="overview-box clearfix">
+                                            <div class="icon">
+                                                <i class="fa-solid fa-desktop"></i>
+                                            </div>
+                                            <hr>
+                                            <div class="text">
+                                                <h2>Device info</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <div id="screenShot" class="overview-item overview-item--c3">
+                                    <div class="overview__inner">
+                                        <div class="overview-box clearfix">
+                                            <div class="icon">
+                                                <i class="fa-solid fa-mobile-screen"></i>
+                                            </div>
+                                            <hr>
+                                            <div class="text">
+                                                <h2>Screen-shot</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <div id="screenShare" class="overview-item overview-item--c4">
+                                    <div class="overview__inner">
+                                        <div class="overview-box clearfix">
+                                            <div class="icon">
+                                                <i class="fa-solid fa-share"></i>
+                                            </div>
+                                            <hr>
+                                            <div class="text">
+                                                <h2>screen-sharing</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <div id="location" class="overview-item overview-item--c1">
+                                    <div class="overview__inner">
+                                        <div class="overview-box clearfix">
+                                            <div class="icon">
+                                                <i class="fa-solid fa-location-dot"></i>
+                                            </div>
+                                            <hr>
+                                            <div class="text">
+                                                <h2>Location</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <div id="notification" class="overview-item overview-item--c2">
+                                    <div class="overview__inner">
+                                        <div class="overview-box clearfix">
+                                            <div class="icon">
+                                                <i class="fa-regular fa-bell"></i>
+                                            </div>
+                                            <hr>
+                                            <div class="text">
+                                                <h2>Notification</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="map col-md-12" style="display: none; border: 5px solid black;"></div>
+                        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                            <button id="stopScreen"
+                                style="display: none; border-radius: 10px; color: white; background-color: red; padding: 5px 20px; font-size: 18px; font-weight: 500;">Stop</button>
+                        </div>
+                        <div class="row">
+                            <div id="ss" style="display: none;">
+                            </div>
+                            <div id="info" class="col-md-12">
+                            </div>
+                            <div class="col-md-12">
+                                <div class="copyright">
+                                    <p>Copyright © 2024 FueMech. All rights reserved.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END MAIN CONTENT-->
+            <!-- END PAGE CONTAINER-->
+        </div>
+
+    </div>
+
+    <!-- Jquery JS-->
+    <script src="/vendor/jquery-3.2.1.min.js"></script>
+    <!-- Bootstrap JS-->
+    <script src="/vendor/bootstrap-4.1/popper.min.js"></script>
+    <script src="/vendor/bootstrap-4.1/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"
+        integrity="sha512-ykZ1QQr0Jy/4ZkvKuqWn4iF3lqPZyij9iRv6sGqLRdTPkY69YX6+7wvVGmsdBbiIfN/8OdsI7HABjvEok6ZopQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Vendor JS       -->
+    <script src="/vendor/slick/slick.min.js">
+    </script>
+    <script src="/vendor/wow/wow.min.js"></script>
+    <script src="/vendor/animsition/animsition.min.js"></script>
+    <script src="/vendor/bootstrap-progressbar/bootstrap-progressbar.min.js">
+    </script>
+    <script src="/vendor/counter-up/jquery.waypoints.min.js"></script>
+    <script src="/vendor/counter-up/jquery.counterup.min.js">
+    </script>
+    <script src="/vendor/circle-progress/circle-progress.min.js"></script>
+    <script src="/vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="/vendor/chartjs/Chart.bundle.min.js"></script>
+    <script src="/vendor/select2/select2.min.js">
+    </script>
+
+    <!-- Main JS-->
+    <script src="/js/main.js"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
+    <script src="/js/admin.js"></script>
+
+</body>
+
+</html>
+<!-- end document-->

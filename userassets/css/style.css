@@ -1,0 +1,241 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+.container{
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+a{
+    text-decoration: none;
+    display: inline-block;
+    color: black;
+}
+li{
+    list-style: none;
+}
+.w-25{
+    width: 25%;
+}
+section{
+    margin: 0 0 100px 0;
+}
+
+header{
+    background: url(../img/banner.jpg),rgba(79, 81, 98, 0.779);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-blend-mode: darken;
+    position: relative;
+}
+
+/* BANNER */
+
+.banner{
+    position: relative;
+    padding: 150px;
+}
+.banner .heading h1{
+    font-size: 55px;
+    line-height: 85px;
+}
+.banner .heading p{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 20px;
+    line-height: 35px;
+    word-spacing: 5px;
+    letter-spacing: 2.5px;
+}
+.banner .heading button{
+    font-size: 20px;
+}
+
+/* ABOUT-TREATMENTS */
+
+.about-treatments .row .col-6:first-child{
+    margin:auto;
+}
+.about-treatments .row .col-6:first-child h2{
+    font-size: 50px;
+}
+.about-treatments .row .col-6:first-child p{
+    font-size: 20px;
+    line-height: 30px;
+    letter-spacing: 2px;
+    word-spacing: 5px;
+    color: #8492a6;
+}
+.about-treatments .row .col-6{
+    position: relative;
+}
+.about-treatments .row .col-6 .about-img{
+    margin: auto;
+    width: 500px;
+}
+.about-treatments .row .col-6 .about-img img{
+    width: 100%;
+    border-radius: 10px;
+    position: relative;
+    z-index: -1;
+}
+
+/* SERVICES */
+
+.services .container .text-center .heading{
+    color: #8492a6;
+    padding: 0 200px;
+    margin-bottom: 50px;
+}
+.services .container .row .col-xl-3{
+    margin-top: 500px;
+}
+.services .container .row .col-xl-3 p{
+    color: #8492a6;
+}
+.services .container .row .col-xl-3 .icon{
+    margin-bottom: 40px;
+}
+.services .container .row .col-xl-3 .icon i{
+    font-size: 35px;
+    padding: 25px;
+}
+
+/* DOCTOR-TEAM */
+
+.doctor-team .row .col-3 .card .card-body a i{
+    font-size: 30px;
+}
+.doctor-team .container .heading p{
+    padding: 0 200px;
+    margin-bottom: 50px;
+    color: #8492a6;
+}
+
+/* FEEDBACK */
+
+
+/* Swiper CSS start */
+
+.swiper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Swiper CSS END */
+
+  .testimonial-header {
+    text-align: center;
+}
+
+
+.testimonial-header h2 {
+    font-size: 45px;
+    margin-top: 20px;
+    color: #8492a6;
+}
+
+.review-card {
+    background-color: white;
+    padding: 0px;
+    margin: 0 5px;
+}
+
+.review-card .customer img {
+    height: 100px;
+    border-radius: 50%;
+}
+
+.review .customer-name p {
+    color: #8492a6;
+    font-size: 15px;
+}
+
+.review-content p {
+    color: #8492a6;
+    font-size: 15px;
+    line-height: 15px;
+    margin: 20px 0;
+}
+
+.review-content .ri-star-fill {
+    color: orange;
+}
+
+/* FOOTER */
+
+.footer{
+    padding: 20px;
+    background: black;
+    color: white;
+}
+footer .col-xl-3 h2{
+    font-family: Assistant;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 42px;
+}
+footer .col-xl-3 h4{
+    font-family: Assistant;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 27px;
+}
+footer .col-xl-3:first-child h2{
+    margin-top: 15px;
+}
+footer .col-xl-3:first-child .img{
+    width: 100px;
+    height: 100px;
+}
+footer .col-xl-3:first-child .img img{
+    width: 100%;
+    height: 100%;
+}
+footer .col-xl-3:first-child .social a img{
+    width: 24px;
+    height: 24px;
+    margin: 5px 15px;
+}
+footer .links a img{
+    width: 50px;
+}
+.footer .col-xl-3:nth-of-type(2) h2{
+    padding-left: 50px;
+}
+.footer .col-xl-3:nth-of-type(2) ul a{
+    display: block;
+}
+footer .links a h4{
+    color: white;
+    margin-left: 20px;
+}
+
+/* COPYRIGHT */
+
+.copyright{
+    background-color: white;
+}
+.copyright h4{
+    color: black;
+}

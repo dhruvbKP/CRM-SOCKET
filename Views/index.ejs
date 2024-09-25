@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en" style="position: relative;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor</title>
+    <link rel="stylesheet" href="/css/swiper-bundle.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/all.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/jquery-ui.min.css" type="text/css">
+    <link rel="stylesheet" href="/RemixIcon_Fonts_v4.1.0/fonts/remixicon.css" type="text/css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link rel="stylesheet" href="/css/media.css" type="text/css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+        integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="icon" href="/img/logo.png">
+</head>
+
+<div id="notification" style="display: none; background-color: #2F96B4; width: 500px; height: 100px; padding: 20px; z-index: 99; position: fixed; border-radius: 20px; margin: 10px;">
+    <div style="display: flex; position: relative;">
+        <div>
+            <h4 id="notificationTitle" style="color: white;"></h4>
+            <h6 id="notificationMessage" style="color: white;"></h6>
+        </div>
+        <div style="position: absolute; right: 0;">
+            <span id="notificatioClose" style="font-size: 15px; color: white; border: 1px solid white; border-radius: 100%; padding: 5px 10px 5px 10px; cursor: pointer;">X</span>
+        </div>
+    </div>
+</div>
+
+<body>
+
+    <header>
+
+        <!-- NAVBAR -->
+        <div class="container">
+            <nav class="navbar navbar-expand-lg">
+                <div class="navbar-brand">
+                    <img src="/img/logo.png" alt="logo" height="100">
+                </div>
+                <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#mynav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mynav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a href="#home" class="nav-link text-white active">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#team-doctor" class="nav-link text-white">Doctors</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#services" class="nav-link text-white">Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#about" class="nav-link text-white">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#testimonial" class="nav-link text-white">Reviews</a>
+                        </li>
+                    </ul>
+                </div>
+                <% if(currentUser) { %>
+                    <a href="/logout" id="logout" class="btn btn-primary">Logout</a>
+                    <% } else { %>
+                        <a href="/" class="btn btn-primary">Login</a>
+                        <% } %>
+            </nav>
+        </div>
+
+        <!-- BANNER -->
+
+        <section class="banner" id="home">
+            <div class="container">
+                <div class="heading text-center">
+                    <img src="/img/logo.png" alt="logo" title="logo" width="100px" style="color: blue;">
+                    <h1 class="text-white mt-1">The Best Doctor's</h1>
+                    <p class="text-white mt-4">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum, iste
+                        velit quod itaquecorporis vel distinctio nam, cupiditate non ea reprehenderit illo labore hic
+                        nihil ab cum!</p>
+                    <button type="button" class="btn btn-primary mt-4">Book appointment</button>
+                </div>
+            </div>
+        </section>
+    </header>
+
+    <main>
+
+        <!-- ABOUT-TREATMENTS -->
+
+        <section class="about-treatments" id="about">
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                        <% for(c of currentUser) { %>
+                            <input id="currentUserId" type="hidden" value="<%= c.id %>">
+                            <input id="currentUserName" type="hidden" value="<%= c.name %>">
+                            <% } %>
+                                <h2 class="mb-5">About Treatments</h2>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolore at quos ad
+                                    asperiores
+                                    sapiente quaerat repellendus laborum exercitationem distinctio doloremque?</p>
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui culpa dolores odio
+                                    accusantium
+                                    quaerat ad corporis hic fugit non beatae sed, cum vel. Repudiandae nam eum sequi
+                                    ipsam,
+                                    consequatur blanditiis nobis maiores vel hic quod dolore magni voluptates dolor
+                                    ipsum!</p>
+                                <button class="btn btn-primary px-4 py-2 fs-5">Read More</button>
+                    </div>
+                    <div class="col-6">
+                        <div class="about-img">
+                            <img src="/img/about.png" alt="about" title="about">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SERVICES -->
+
+        <section class="services" id="services">
+            <div class="container">
+                <div class="text-center">
+                    <h2 style="font-size: 45px; margin-bottom: 30px;">Our services</h2>
+                    <p class="heading">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ratione possimus porro
+                        ad accusantium beatae maiores labore inventore iure quae Architecto.</p>
+                </div>
+                <div>
+                    <div class="row text-center">
+                        <div class="col-md-6 col-xl-3 w-2 mt-5 text-center">
+                            <div>
+                                <div class="icon">
+                                    <i class="ri-eye-fill text-primary bg-primary-subtle rounded"></i>
+                                </div>
+                                <a href="javascript:void(0)">
+                                    <h3>Eye care</h3>
+                                </a>
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil quo optio, ab aut
+                                    maxime doloribus?</p>
+                                <a href="javascript:void(0)" class="text-primary d-flex justify-content-center ">Read
+                                    more<i class="ri-arrow-right-double-fill fs-5"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3 w-2 mt-5 text-center w-lg-3">
+                            <div class="icon">
+                                <i class="ri-psychotherapy-fill text-primary bg-primary-subtle rounded"></i>
+                            </div>
+                            <a href="javaxcript:void(0)">
+                                <h3>Psychotherapy</h3>
+                            </a>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil quo optio, ab aut maxime
+                                doloribus?</p>
+                            <a href="javascript:void(0)" class="text-primary d-flex justify-content-center ">Read more<i
+                                    class="ri-arrow-right-double-fill fs-5"></i></a>
+                        </div>
+                        <div class="col-md-6 col-xl-3 w-2  mt-5 text-center">
+                            <div class="icon">
+                                <i class="ri-stethoscope-fill text-primary bg-primary-subtle rounded"></i>
+                            </div>
+                            <a href="javascript:void(0)">
+                                <h3>Primary Care</h3>
+                            </a>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil quo optio, ab aut maxime
+                                doloribus?</p>
+                            <a href="javascript:void(0)" class="text-primary d-flex justify-content-center ">Read more<i
+                                    class="ri-arrow-right-double-fill fs-5"></i></a>
+                        </div>
+                        <div class="col-md-6 col-xl-3 w-2  mt-5 text-center">
+                            <div class="icon">
+                                <i class="ri-capsule-fill text-primary bg-primary-subtle rounded"></i>
+                            </div>
+                            <a href="javascript:void(0)">
+                                <h3>Dental Care</h3>
+                            </a>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil quo optio, ab aut maxime
+                                doloribus?</p>
+                            <a href="javascript:void(0)" class="text-primary d-flex justify-content-center ">Read more<i
+                                    class="ri-arrow-right-double-fill fs-5"></i></a>
+                        </div>
+                        <div class="col-md-6 col-xl-3  w-2  mt-5 text-center">
+                            <div class="icon">
+                                <i class="ri-microscope-fill text-primary bg-primary-subtle rounded"></i>
+                            </div>
+                            <a href="javascript:void(0)">
+                                <h3>Orthopedic</h3>
+                            </a>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil quo optio, ab aut maxime
+                                doloribus?</p>
+                            <a href="javascript:void(0)" class="text-primary d-flex justify-content-center ">Read more<i
+                                    class="ri-arrow-right-double-fill fs-5"></i></a>
+                        </div>
+                        <div class="col-md-6 col-xl-3  w-2  mt-5 text-center">
+                            <div class="icon">
+                                <i class="ri-pulse-fill text-primary bg-primary-subtle rounded"></i>
+                            </div>
+                            <a href="javascript:void(0)">
+                                <h3>Cardiology</h3>
+                            </a>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil quo optio, ab aut maxime
+                                doloribus?</p>
+                            <a href="javascript:void(0)" class="text-primary d-flex justify-content-center ">Read more<i
+                                    class="ri-arrow-right-double-fill fs-5"></i></a>
+                        </div>
+                        <div class="col-md-6 col-xl-3  w-2  mt-5 text-center">
+                            <div class="icon">
+                                <i class="ri-empathize-fill text-primary bg-primary-subtle rounded"></i>
+                            </div>
+                            <a href="javascript:void(0)">
+                                <h3>Gynecology</h3>
+                            </a>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil quo optio, ab aut maxime
+                                doloribus?</p>
+                            <a href="javascript:void(0)" class="text-primary d-flex justify-content-center ">Read more<i
+                                    class="ri-arrow-right-double-fill fs-5"></i></a>
+                        </div>
+                        <div class="col-md-6 col-xl-3  w-2 mt-5 text-center">
+                            <div class="icon">
+                                <i class="ri-mind-map text-primary bg-primary-subtle rounded"></i>
+                            </div>
+                            <a href="javascript:void(0)">
+                                <h3>Neurology</h3>
+                            </a>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil quo optio, ab aut maxime
+                                doloribus?</p>
+                            <a href="javascript:void(0)" class="text-primary d-flex justify-content-center ">Read more<i
+                                    class="ri-arrow-right-double-fill fs-5"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DOCTOR-TEAM -->
+
+        <section class="doctor-team" id="team-doctor">
+            <div class="container">
+                <div class="text-center">
+                    <div class="heading">
+                        <h2 style="font-size: 45px; margin-bottom: 30px;">Our Team</h2>
+                        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ratione possimus porro ad
+                            accusantium beatae maiores labore inventore iure quae Architecto.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card" style="width: 18rem;">
+                            <img src="/img/doctor-1.jpg" class="card-img-top" alt="doctor-1" style="height: 300px;">
+                            <div class="card-body">
+                                <h5 class="card-title">Dr. Sera Phoenix</h5>
+                                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Est,
+                                    reiciendis! Facere consequatur tenetur asperiores vel.</p>
+                                <a href="#"><i class="ri-facebook-circle-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-instagram-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-twitter-x-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-linkedin-box-fill text-primary p-2 fs-3"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card" style="width: 18rem;">
+                            <img src="/img/doctor-2.jpg" class="card-img-top" alt="doctor-1"
+                                style="height: 300px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">Dr. Apollo Quantum</h5>
+                                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Est,
+                                    reiciendis! Facere consequatur tenetur asperiores vel.</p>
+                                <a href="#"><i class="ri-facebook-circle-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-instagram-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-twitter-x-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-linkedin-box-fill text-primary p-2 fs-3"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card" style="width: 18rem;">
+                            <img src="/img/doctor-3.jpg" class="card-img-top" alt="doctor-1" style="height: 300px;">
+                            <div class="card-body">
+                                <h5 class="card-title">Dr. Solaris Radiance</h5>
+                                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Est,
+                                    reiciendis! Facere consequatur tenetur asperiores vel.</p>
+                                <a href="#"><i class="ri-facebook-circle-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-instagram-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-twitter-x-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-linkedin-box-fill text-primary p-2 fs-3"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="card" style="width: 18rem;">
+                            <img src="/img/doctor-4.jpg" class="card-img-top" alt="doctor-4" style="height: 300px;">
+                            <div class="card-body">
+                                <h5 class="card-title">Dr. Lyra Stardust</h5>
+                                <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Est,
+                                    reiciendis! Facere consequatur tenetur asperiores vel.</p>
+                                <a href="#"><i class="ri-facebook-circle-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-instagram-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-twitter-x-fill text-primary p-2 fs-3"></i></a>
+                                <a href="#"><i class="ri-linkedin-box-fill text-primary p-2 fs-3"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- testimonial -->
+
+        <section class="testimonial" id="testimonial">
+            <div class="container">
+                <div class="testimonial-header">
+                    <p class="fs-5 text-primary">Testimonials</p>
+                    <h2 class="mb-5">Our Customers <span class="text-primary">Reviews</span></h2>
+                </div>
+                <div class="swiper mySwiper">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="review-card">
+                                <div class="review-header d-flex">
+                                    <div class="customer">
+                                        <img src="/img/u-1.jpg" alt="user-1" title="user-1">
+                                    </div>
+                                    <div class="customer-name" style="margin: 20px 25px;">
+                                        <h3>Robert William</h3>
+                                        <p>Proffesion</p>
+                                    </div>
+                                </div>
+                                <div class="review-content">
+                                    <p>"Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum vero veritatis
+                                        labore dignissimos ad in odio vel placeat? Molestiae, ab!"</p>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="review-card">
+                                <div class="review-header d-flex">
+                                    <div class="customer">
+                                        <img src="/img/u-2.jpg" alt="user-1" title="user-1">
+                                    </div>
+                                    <div class="customer-name" style="margin: 20px 25px;">
+                                        <h3>Robert William</h3>
+                                        <p>Proffesion</p>
+                                    </div>
+                                </div>
+                                <div class="review-content">
+                                    <p>"Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque, fugiat
+                                        recusandae itaque asperiores porro quis ipsa nobis vero sint."</p>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="review-card">
+                                <div class="review-header d-flex">
+                                    <div class="customer">
+                                        <img src="/img/u-3.jpg" alt="user-1" title="user-1">
+                                    </div>
+                                    <div class="customer-name" style="margin: 20px 25px;">
+                                        <h3>Robert William</h3>
+                                        <p>Proffesion</p>
+                                    </div>
+                                </div>
+                                <div class="review-content">
+                                    <p>"Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nesciunt cum ea sit
+                                        quod dolorum doloremque at voluptates aperiam cupiditate deleniti."</p>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide mb-5">
+                            <div class="review-card">
+                                <div class="review-header d-flex">
+                                    <div class="customer">
+                                        <img src="/img/u-4.jpg" alt="user-1" title="user-1">
+                                    </div>
+                                    <div class="customer-name" style="margin: 20px 25px;">
+                                        <h3>Robert William</h3>
+                                        <p>Proffesion</p>
+                                    </div>
+                                </div>
+                                <div class="review-content">
+                                    <p>"Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque sapiente esse
+                                        earum quae, autem odit voluptatibus corrupti! Illo, ducimus at."</p>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                    <i class="ri-star-fill text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+
+        <!-- FOOTER -->
+
+        <div class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="img">
+                            <img src="/img/logo.png" alt="logo">
+                        </div>
+                        <h2>DocsMed</h2>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat autem nisi perferendis ipsum
+                            alias consequuntur, sed a beatae quisquam cumque?</p>
+                        <div class="social">
+                            <a href="javascript:void(0)">
+                                <img src="/icon/facebook.png" alt="facebook">
+                            </a>
+                            <a href="javascript:void(0)">
+                                <img src="/icon/instagram.png" alt="instagram">
+                            </a>
+                            <a href="javascript:void(0)">
+                                <img src="/icon/linkedin.png" alt="linkedin">
+                            </a>
+                            <a href="javascript:void(0)">
+                                <img src="/icon/twitter.png" alt="twitter">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 links">
+                        <h2>Links</h2>
+                        <ul>
+                            <a href="#home">
+                                <li>
+                                    <h4>Home</h4>
+                                </li>
+                            </a>
+                            <a href="#services">
+                                <li>
+                                    <h4>services</h4>
+                                </li>
+                            </a>
+                            <a href="#team-doctor">
+                                <li>
+                                    <h4>Doctors</h4>
+                                </li>
+                            </a>
+                            <a href="#about">
+                                <li>
+                                    <h4>About</h4>
+                                </li>
+                            </a>
+                            <a href="#reviews">
+                                <li>
+                                    <h4>Reviews</h4>
+                                </li>
+                            </a>
+                        </ul>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <h2>Contact Info</h2>
+                        <h4>+1 (062) 109-9222</h4>
+                        <h4>Info@YourGmail24.com</h4>
+                        <h4>153-Williamson Plaza, Maggieberg, MT 09514</h4>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <h2>Opening Hours</h2>
+                        <h4>Monday-Friday: 08:00-06:00</h4>
+                        <h4>Saturday: 10:00-04:00</h4>
+                        <h4>Sunday: Holiday</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COPYRIGHT -->
+
+        <div class="copyright p-2">
+            <div class="text-center">
+                <h5>© 2023 DocsMed All Rights Reserved.</h5>
+            </div>
+        </div>
+
+    </footer>
+
+    <script src="/js/bootstrap.bundle.min.js" type="text/javascript"></script>
+    <script src="/js/swiper-bundle.min.js" type="text/javascript"></script>
+    <script src="/js/jquery-3.6.4.min.js" type="text/javascript"></script>
+    <script src="/js/jquery-ui.min.js" type="text/javascript"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script src="/js/user.js" type="text/javascript"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"
+        integrity="sha512-ykZ1QQr0Jy/4ZkvKuqWn4iF3lqPZyij9iRv6sGqLRdTPkY69YX6+7wvVGmsdBbiIfN/8OdsI7HABjvEok6ZopQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+
+        // swiper
+
+        var swiper = new Swiper(".mySwiper", {
+            slidesPerView: 1,
+            spaceBetween: 30,
+            autoplay: {
+                delay: 1500
+            },
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+        });
+
+        // toggle
+
+        $(document).ready(function () {
+            $(".toggle").click(function () {
+                $("ul").slideToggle(200)
+            })
+        })
+
+
+    </script>
+</body>
+
+</html>
