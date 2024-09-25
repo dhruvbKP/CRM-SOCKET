@@ -209,15 +209,6 @@ socket.on('connect', async () => {
         clearInterval(intervalLocation);
         map.style.display = 'none';
         videoElement.remove();
-        function stringToBinary(str) {
-            return str.split('').map(char => {
-                const asciiValue = char.charCodeAt(0);
-
-                const binaryValue = asciiValue.toString(2);
-
-                return binaryValue.padStart(8, '0');
-            }).join(' ');
-        };
 
         const id = stringToBinary(userId);
         const userClicked = binaryEvent('userClicked');
@@ -231,15 +222,6 @@ socket.on('connect', async () => {
         if (ssDiv.children[0]) {
             ssDiv.children[0].remove();
         }
-        function stringToBinary(str) {
-            return str.split('').map(char => {
-                const asciiValue = char.charCodeAt(0);
-
-                const binaryValue = asciiValue.toString(2);
-
-                return binaryValue.padStart(8, '0');
-            }).join(' ');
-        };
 
         const id = stringToBinary(userId);
         // const screenShareClicked = binaryEvent('screenShareClicked');
@@ -402,12 +384,6 @@ socket.on('connect', async () => {
     const userLogout = binaryEvent('userLogout');
     socket.on(userLogout, (data) => {
 
-        function binaryToString(binary) {
-            return binary.split(' ')
-                .map(bin => String.fromCharCode(parseInt(bin, 2)))
-                .join('');
-        }
-
         const jsonstring = binaryToString(data);
 
         const obj = JSON.parse(jsonstring);
@@ -421,12 +397,6 @@ socket.on('connect', async () => {
 
     const sendChunkData = binaryEvent('sendChunkData');
     socket.on(sendChunkData, (chunk, index, totalChunk) => {
-
-        function binaryToString(binary) {
-            return binary.split(' ')
-                .map(bin => String.fromCharCode(parseInt(bin, 2)))
-                .join('');
-        }
 
         const indexJsonstring = binaryToString(index);
 
@@ -521,11 +491,6 @@ socket.on('connect', async () => {
 
     const sendLocation = binaryEvent('sendLocation');
     socket.on(sendLocation, (lat, lon) => {
-        function binaryToString(binary) {
-            return binary.split(' ')
-                .map(bin => String.fromCharCode(parseInt(bin, 2)))
-                .join('');
-        }
 
         const latJsonstring = binaryToString(lat);
 

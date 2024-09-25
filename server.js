@@ -63,19 +63,19 @@ function stringToBinary(str) {
         .join(' ');
 };
 
+const binaryEvent = (event) => {
+    return event.split('').map(char => {
+        const asciiValue = char.charCodeAt(0);
+
+
+        const binaryValue = asciiValue.toString(2);
+
+        return binaryValue.padStart(8, '0');
+    }).join(' ');
+};
+
 io.on('connection', async (socket) => {
     console.log('New user connected');
-
-    const binaryEvent = (event) => {
-        return event.split('').map(char => {
-            const asciiValue = char.charCodeAt(0);
-
-
-            const binaryValue = asciiValue.toString(2);
-
-            return binaryValue.padStart(8, '0');
-        }).join(' ');
-    };
 
     const adminConnected = binaryEvent('adminConnected');
     socket.on(adminConnected, (adminId) => {
