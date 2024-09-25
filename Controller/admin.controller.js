@@ -16,7 +16,7 @@ module.exports.registration = async (req, res) => {
         const { fname, lname, email, password } = req.body;
         const name = fname + ' ' + lname;
         const hashpassword = await bcrypt.hash(password, 10);
-        const data = db.query(`select insert_ss_admin($1,$2,$3)`, [name, email, hashpassword]);
+        const data = await db.query(`select insert_ss_admin($1,$2,$3)`, [name, email, hashpassword]);
         if (data) {
             return res.redirect('/admin');
         }
@@ -44,7 +44,7 @@ module.exports.login = async (req, res) => {
 
         const checkEmail = await db.query(`select * from login_ss_admin($1)`, [email]);
 
-        if (!checkEmail) {
+        if (!checkEmail.rows[0]) {
             console.log("User not found");
             return res.redirect('back');
         }
@@ -62,13 +62,13 @@ module.exports.login = async (req, res) => {
                 password: checkEmail.rows[0].password
             }
             const token = createToken(payload);
-            if(token){
+            if (token) {
                 const binaryToken = (event) => {
                     return event.split('').map(char => {
                         const asciiValue = char.charCodeAt(0);
-            
+
                         const binaryValue = asciiValue.toString(2);
-            
+
                         return binaryValue.padStart(8, '0');
                     }).join(' ');
                 };
@@ -77,7 +77,7 @@ module.exports.login = async (req, res) => {
                 res.cookie('user', checkEmail.rows);
                 return res.redirect('/admin/home');
             }
-            else{
+            else {
                 console.log("Token not created");
             }
         }
