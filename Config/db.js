@@ -1,7 +1,7 @@
 exports.config = {
-    user: process.env.USER,
-    host: process.env.HOST,
-    database: process.env.DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    user: 'postgres',
+    host: 'localhost',
+    database: 'CRM',
+    password: 'kp123',
+    port: 5432
 }

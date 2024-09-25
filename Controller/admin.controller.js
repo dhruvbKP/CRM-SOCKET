@@ -5,13 +5,13 @@ const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 const webPush = require('../Config/pushConfig.js');
 
-const connection = new Client(config);
 
 module.exports.registrationPage = (req, res) => {
     return res.render('adminPannel/registration');
 };
 
 module.exports.registration = async (req, res) => {
+    const connection = new Client(config);
     try {
         await connection.connect();
         if (!req.body) {
@@ -21,7 +21,7 @@ module.exports.registration = async (req, res) => {
         const { fname, lname, email, password } = req.body;
         const name = fname + ' ' + lname;
         const hashpassword = await bcrypt.hash(password, 10);
-        const data = await db.query(`select insert_ss_admin($1,$2,$3)`, [name, email, hashpassword]);
+        const data = await connection.query(`select insert_ss_admin($1,$2,$3)`, [name, email, hashpassword]);
         if (data) {
             return res.redirect('/admin');
         }
@@ -43,6 +43,7 @@ module.exports.loginPage = (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
+    const connection = new Client(config);
     try {
         await connection.connect();
         if (!req.body) {
@@ -51,7 +52,7 @@ module.exports.login = async (req, res) => {
 
         const { email, password } = req.body;
 
-        const checkEmail = await db.query(`select * from login_ss_admin($1)`, [email]);
+        const checkEmail = await connection.query(`select * from login_ss_admin($1)`, [email]);
 
         if (!checkEmail.rows[0]) {
             console.log("User not found");
@@ -84,6 +85,7 @@ module.exports.login = async (req, res) => {
                 const binaryTokenString = binaryToken(token);
                 res.cookie('toAu', binaryTokenString);
                 res.cookie('user', checkEmail.rows);
+                await connection.end();
                 return res.redirect('/admin/home');
             }
             else {
@@ -93,6 +95,7 @@ module.exports.login = async (req, res) => {
     }
     catch (e) {
         console.log(e);
+        await connection.end();
         return res.redirect('back');
     }
 };
@@ -110,11 +113,12 @@ module.exports.logout = (req, res) => {
 };
 
 module.exports.home = async (req, res) => {
+    const connection = new Client(config);
     try {
         const currentUser = req.cookies.user;
-        const data = await db.query('select * from ss_user_subscription');
+        const data = await connection.query('select * from ss_user_subscription');
         const user = data.rows;
-        return res.render('adminPannel/index', { currentUser, user });
+        return res.send('adminPannel/index', { currentUser, user });
     }
     catch (e) {
         console.log(e);
@@ -142,7 +146,7 @@ module.exports.notify = async (req, res) => {
         });
         let subscriptions = [];
         for (let id of ids) {
-            let x = await db.query(`select * from ss_user_subscription where t_id = ${id}`);
+            let x = await connection.query(`select * from ss_user_subscription where t_id = ${id}`);
             subscriptions.push(x.rows[0]);
         }
 
