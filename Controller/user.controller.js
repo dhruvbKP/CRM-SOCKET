@@ -1,6 +1,13 @@
 const bcrypt = require('bcrypt');
-const db = require('../Config/db');
+const { Client } = require('pg');
+const EventEmitter = require('events');
+
+const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
+
+const connection = new Client(config);
+
+const eventEmitter = new EventEmitter();
 
 module.exports.registerpage = (req, res) => {
     return res.render('registration');
@@ -8,6 +15,7 @@ module.exports.registerpage = (req, res) => {
 
 module.exports.registration = async (req, res) => {
     try {
+        await connection.connect();
         if (!req.body) {
             console.log("Please fill the form");
         }
@@ -27,6 +35,9 @@ module.exports.registration = async (req, res) => {
         console.log(e);
         return res.redirect('back');
     }
+    finally{
+        await connection.end();
+    }
 };
 
 module.exports.loginPage = (req, res) => {
@@ -35,6 +46,7 @@ module.exports.loginPage = (req, res) => {
 
 module.exports.login = async (req, res) => {
     try {
+        await connection.connect();
         if (!req.body) {
             console.log("Please fill the form");
         }
@@ -89,10 +101,14 @@ module.exports.login = async (req, res) => {
         console.log(e);
         return res.redirect('back');
     }
+    finally{
+        await connection.end();
+    }
 };
 
 module.exports.logout = async (req, res) => {
     try {
+        await connection.connect();
         const userData = req.cookies.user;
         const checkEmail = await db.query(`select * from login_ss_user($1)`, [userData[0].email]);
 
@@ -114,6 +130,9 @@ module.exports.logout = async (req, res) => {
     catch (e) {
         console.log(e);
         console.log("Something went wrong");
+    }
+    finally{
+        await connection.end();
     }
 };
 

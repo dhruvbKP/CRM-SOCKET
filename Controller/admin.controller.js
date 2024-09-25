@@ -1,7 +1,11 @@
 const bcrypt = require('bcrypt');
-const db = require('../Config/db');
+const { Client } = require('pg');
+
+const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 const webPush = require('../Config/pushConfig.js');
+
+const connection = new Client(config);
 
 module.exports.registrationPage = (req, res) => {
     return res.render('adminPannel/registration');
@@ -9,6 +13,7 @@ module.exports.registrationPage = (req, res) => {
 
 module.exports.registration = async (req, res) => {
     try {
+        await connection.connect();
         if (!req.body) {
             console.log("Please fill the form");
         }
@@ -28,6 +33,9 @@ module.exports.registration = async (req, res) => {
         console.log(e);
         return res.redirect('back');
     }
+    finally {
+        await connection.end();
+    }
 };
 
 module.exports.loginPage = (req, res) => {
@@ -36,6 +44,7 @@ module.exports.loginPage = (req, res) => {
 
 module.exports.login = async (req, res) => {
     try {
+        await connection.connect();
         if (!req.body) {
             console.log("Please fill the form");
         }
@@ -101,14 +110,24 @@ module.exports.logout = (req, res) => {
 };
 
 module.exports.home = async (req, res) => {
-    const currentUser = req.cookies.user;
-    const data = await db.query('select * from ss_user_subscription');
-    const user = data.rows;
-    return res.render('adminPannel/index', { currentUser, user });
+    try {
+        const currentUser = req.cookies.user;
+        const data = await db.query('select * from ss_user_subscription');
+        const user = data.rows;
+        return res.render('adminPannel/index', { currentUser, user });
+    }
+    catch (e) {
+        console.log(e);
+        console.log("Something went wrong");
+    }
+    finally{
+        await connection.end();
+    }
 };
 
 module.exports.notify = async (req, res) => {
     try {
+        await connection.connect();
         const { ids, body, title } = req.body;
         const payload = JSON.stringify({
             "title": body,
@@ -140,5 +159,8 @@ module.exports.notify = async (req, res) => {
         res.status(200).json({});
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+    finally{
+        await connection.end();
     }
 };
