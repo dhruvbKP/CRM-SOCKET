@@ -144,8 +144,8 @@
                     <hr id="hr" style="height: 0.5px; background-color: black;" />
                     <ul id="ul" class="userName list-unstyled navbar__list">
                         <% activeUsers.forEach((user)=>{ %>
-                            <li class="active has-sub" id="<%=user.id%>" style="margin-bottom: 20px;">
-                                <h3 style="cursor: pointer;">
+                            <li onclick="demo('<%= user.id %>')" class="active has-sub" id="<%=user.id%>" style="margin-bottom: 20px;">
+                                <h3 class="userName" style="cursor: pointer;">
                                     <%=user.name%>
                                 </h3>
                             </li>

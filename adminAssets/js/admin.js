@@ -16,6 +16,8 @@ const pushForm = document.getElementById('pushForm');
 const notificationModel = document.getElementById('notificationModel');
 var span = document.getElementsByClassName("close")[0];
 const notificationForm = document.getElementById('notificationForm');
+const currentUsers = document.getElementsByClassName('userName');
+const currentUserLi = document.getElementsByClassName('active');
 
 span.onclick = function () {
     notificationModel.style.display = "none";
@@ -31,6 +33,37 @@ let userId;
 let obj;
 
 let usersubscriptionIds = [];
+
+const demo = (id) => {
+    const isCurrentlySelected = userId === id;
+
+    if (!isCurrentlySelected) {
+        dataModel.style.display = 'flex';
+        userId = id;
+
+        if (ssDiv.children[0]) {
+            ssDiv.children[0].remove();
+        }
+        if (infoDiv.innerText) {
+            infoDiv.style.display = 'none';
+        }
+        if (map.innerHTML) {
+            clearInterval(intervalLocation);
+            map.style.display = 'none';
+        }
+    } else {
+        dataModel.style.display = dataModel.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    infoDiv.style.display = 'none';
+    if (map.innerHTML) {
+        map.style.display = 'none';
+        clearInterval(intervalLocation);
+    }
+    if (ssDiv.children[0]) {
+        ssDiv.children[0].remove();
+    }
+};
 
 let peerConnection;
 const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
@@ -135,7 +168,7 @@ socket.on('connect', async () => {
 
         const jsonstring = binaryToString(data);
 
-        obj = JSON.parse(jsonstring);
+        const obj = JSON.parse(jsonstring);
 
         h5.innerHTML = obj.activeUsers;
 
@@ -146,6 +179,8 @@ socket.on('connect', async () => {
 
         li.classList.add('active');
         li.classList.add('has-sub');
+
+        h3.classList.add('userName');
 
         // const nameDiv = document.createElement('div');
         // nameDiv.style.display = 'flex';
@@ -160,7 +195,7 @@ socket.on('connect', async () => {
         // nameDiv.appendChild(checkBox);
         // nameDiv.appendChild(h3);
 
-        document.getElementById('hr').style.display = 'block';
+        // document.getElementById('hr').style.display = 'block';
         // document.getElementById('selectAll').style.display = 'flex';
 
         // li.appendChild(nameDiv);
@@ -237,7 +272,7 @@ socket.on('connect', async () => {
     document.getElementById('notification').addEventListener('click', () => {
         notificationModel.style.display = 'block';
     });
-    
+
     document.getElementById('sendNotification').addEventListener('click', (e) => {
         e.preventDefault();
 
@@ -336,27 +371,61 @@ socket.on('connect', async () => {
     // });
 
     document.getElementById('ipInfo').addEventListener('click', () => {
+        const id = stringToBinary(userId);
+        const ipInfo = binaryEvent('ipInfo');
+        socket.emit(ipInfo, (id));
+    });
+
+    const sendIpInfo = binaryEvent('sendIpInfo');
+    socket.on(sendIpInfo, (ip) => {
+        const ipAdd = binaryToString(ip);
         infoDiv.style.display = 'block';
         ssDiv.style.display = 'none';
         map.style.display = 'none';
         clearInterval(intervalLocation);
-        infoDiv.innerHTML = `<h3>Ip address :- ${obj.ipAdd.query}</h3>`;
+        infoDiv.innerHTML = `<h3>Ip address :- ${ipAdd}</h3>`;
     });
 
     document.getElementById('deviceinfo').addEventListener('click', () => {
+        // infoDiv.style.display = 'block';
+        // ssDiv.style.display = 'none';
+        // map.style.display = 'none';
+        // clearInterval(intervalLocation);
+        // infoDiv.innerHTML = `
+        // <h3>Country :- ${obj.ipAdd.country}</h3>
+        // <h3>Region :- ${obj.ipAdd.regionName}</h3>
+        // <h3>City :- ${obj.ipAdd.city}</h3>
+        // <h3>Latitude :- ${obj.ipAdd.lat}</h3>
+        // <h3>longitude :- ${obj.ipAdd.lat}</h3>
+        // <h3>Zip-code :- ${obj.ipAdd.zip}</h3>
+        // <h3>Internet service provider :- ${obj.ipAdd.isp}</h3>
+        // <h3>Device memory :- ${obj.deviceInfo.deviceMemory} GB</h3>
+        // `
+
+        const id = stringToBinary(userId);
+        const deviceInfo = binaryEvent('deviceInfo');
+        socket.emit(deviceInfo, (id));
+    });
+
+    const sendDeviceInfo = binaryEvent('sendDeviceInfo');
+    socket.on(sendDeviceInfo, (deviceinfo, ip) => {
+        const DeviceInfo = binaryToString(deviceinfo);
+        const deviceInfo = JSON.parse(DeviceInfo);
+        const ipJsonString = binaryToString(ip);
+        const ipAdd = JSON.parse(ipJsonString);
         infoDiv.style.display = 'block';
         ssDiv.style.display = 'none';
         map.style.display = 'none';
         clearInterval(intervalLocation);
         infoDiv.innerHTML = `
-        <h3>Country :- ${obj.ipAdd.country}</h3>
-        <h3>Region :- ${obj.ipAdd.regionName}</h3>
-        <h3>City :- ${obj.ipAdd.city}</h3>
-        <h3>Latitude :- ${obj.ipAdd.lat}</h3>
-        <h3>longitude :- ${obj.ipAdd.lat}</h3>
-        <h3>Zip-code :- ${obj.ipAdd.zip}</h3>
-        <h3>Internet service provider :- ${obj.ipAdd.isp}</h3>
-        <h3>Device memory :- ${obj.deviceInfo.deviceMemory} GB</h3>
+        <h3>Country :- ${ipAdd.country}</h3>
+        <h3>Region :- ${ipAdd.regionName}</h3>
+        <h3>City :- ${ipAdd.city}</h3>
+        <h3>Latitude :- ${ipAdd.lat}</h3>
+        <h3>longitude :- ${ipAdd.lat}</h3>
+        <h3>Zip-code :- ${ipAdd.zip}</h3>
+        <h3>Internet service provider :- ${ipAdd.isp}</h3>
+        <h3>Device memory :- ${deviceInfo.deviceMemory} GB</h3>
         `
     });
 
