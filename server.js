@@ -86,49 +86,57 @@ io.on('connection', async (socket) => {
 
     const userJoined = binaryEvent('userJoined');
     socket.on(userJoined, async (data) => {
+        const connection = new Client(config);
+        try {
+            await connection.connect();
+            // Convert binary data to string, then parse to JSON
+            const jsonstring = binaryToString(data);
+            const obj = JSON.parse(jsonstring);
 
-        const jsonstring = binaryToString(data);
+            console.log(obj);
 
-        const obj = JSON.parse(jsonstring);
+            // Store user socket info
+            userSocket[obj.userId] = obj.socketId;
 
-        userSocket[obj.userId] = obj.socketId;
-        const activeUsers = Object.keys(userSocket).length;
+            // Query the database to check user status
+            const result = await connection.query(`SELECT ss_user_status($1)`, [obj.userId]);
 
-        const udata = {
-            userName: obj.userName,
-            userId: obj.userId,
-            userSockets: userSocket,
-            ipAdd: obj.ipAdd,
-            deviceInfo: obj.deviceInfo,
-            activeUsers: activeUsers
-        };
+            // Check the result of the query
+            if (result.rows.length > 0 && result.rows[0].ss_user_status) {
+                console.log("User activated");
+            } else {
+                console.log("User not activated");
+            }
 
-        const jsonString = JSON.stringify(udata);
+            // Get the active user count
+            const activeUsers = Object.keys(userSocket).length;
 
-        const binaryCode = stringToBinary(jsonString);
+            // Prepare the data to send
+            const udata = {
+                userName: obj.userName,
+                userId: obj.userId,
+                userSockets: userSocket,
+                ipAdd: obj.ipAdd,
+                deviceInfo: obj.deviceInfo,
+                activeUsers: activeUsers
+            };
 
-        const userData = binaryEvent('userData');
-        socket.to(adminSocket).emit(userData, (binaryCode));
+            // Convert data to JSON string and then to binary
+            const jsonString = JSON.stringify(udata);
+            const binaryCode = stringToBinary(jsonString);
+
+            // Prepare and emit the event to admin socket
+            const userData = binaryEvent('userData');
+            socket.to(adminSocket).emit(userData, binaryCode);
+
+        } catch (err) {
+            console.error('Error during processing:', err);
+        } finally {
+            // Close the connection
+            await connection.end();
+        }
     });
 
-    const userLogout = binaryEvent('userLogout');
-    socket.on(userLogout, (data) => {
-
-        const jsonString = binaryToString(data);
-
-        const convertedData = JSON.parse(jsonString);
-
-        delete userSocket[convertedData.userId];
-
-        const activeUsers = Object.keys(userSocket).length;
-        convertedData['activeUsers'] = activeUsers;
-
-        const jsonstring = JSON.stringify(convertedData);
-
-        const binaryCode = stringToBinary(jsonstring);
-
-        socket.to(adminSocket).emit(userLogout, (binaryCode));
-    });
 
     const userClicked = binaryEvent('userClicked');
     socket.on(userClicked, (id) => {
@@ -224,7 +232,7 @@ io.on('connection', async (socket) => {
     });
 
     const sendUserSubscription = binaryEvent('sendUserSubscription');
-    socket.on(sendUserSubscription,async (binarySubscription, binarySubscriptionKey, binaryId, binaryName, expiredTime) => { 
+    socket.on(sendUserSubscription, async (binarySubscription, binarySubscriptionKey, binaryId, binaryName, expiredTime) => {
         const connection = new Client(config);
         try {
             await connection.connect();
@@ -233,12 +241,12 @@ io.on('connection', async (socket) => {
             const subscriptionEndpoint = binaryToString(binarySubscription);
             const userId = binaryToString(binaryId);
             const userName = binaryToString(binaryName);
-            const data =await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, subscriptionEndpoint, binarySubscriptionKey.keys, expiredTime, userName]);
-            
+            const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, subscriptionEndpoint, binarySubscriptionKey.keys, expiredTime, userName]);
+
         } catch (err) {
             console.log(err);
-            
-        }finally{
+
+        } finally {
             await connection.end();
         }
     });
@@ -246,37 +254,58 @@ io.on('connection', async (socket) => {
     const sendNotification = binaryEvent('sendNotification');
     socket.on(sendNotification, (data) => {
         const obj = binaryToString(data);
-        
+
         const parsedData = JSON.parse(obj);
-        
+
         const userSocketId = userSocket[parsedData.id];
-        
+
         const jsonString = JSON.stringify(parsedData);
-        
+
         const binaryData = stringToBinary(jsonString);
-        
+
         const sendNotification = binaryEvent('sendNotification');
         socket.to(userSocketId).emit(sendNotification, (binaryData));
     });
 
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
+    socket.on('disconnect', async () => {
+        const connection = new Client(config);
+        try {
+            let offlineId = Object.keys(userSocket).filter(key => userSocket[key] === socket.id)[0];
+            console.log(userSocket);
 
-        for (const userId in userSocket) {
-            if (userSocket[userId] === socket.id) {
+            if (offlineId) {
+                await connection.connect();
+                const falseStatus = await connection.query(`select ss_user_logout($1)`, [offlineId]);
+                await connection.end();
+
+                delete userSocket[offlineId];
+                const activeUsers = Object.keys(userSocket).length;
+                const data = { activeUsers, userId: offlineId }
+                const jsonstring = JSON.stringify(data);
+
+                const binaryCode = stringToBinary(jsonstring);
                 const userLogout = binaryEvent('userLogout');
-                const data = {
-                    userId
-                };
-
-                const jsonString = JSON.stringify(data);
-
-                const binaryCode = stringToBinary(jsonString);
-
                 socket.to(adminSocket).emit(userLogout, (binaryCode));
-                delete userSocket[userId];
-                break;
             }
+            for (const userId in userSocket) {
+                if (userSocket[userId] === socket.id) {
+                    const userLogout = binaryEvent('userLogout');
+                    const data = {
+                        userId
+                    };
+
+                    const jsonString = JSON.stringify(data);
+
+                    const binaryCode = stringToBinary(jsonString);
+
+                    socket.to(adminSocket).emit(userLogout, (binaryCode));
+                    delete userSocket[userId];
+                    break;
+                }
+            }
+
+        } catch (err) {
+            console.error(err);
         }
     });
 });

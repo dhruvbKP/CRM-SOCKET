@@ -143,6 +143,13 @@
                     </form>
                     <hr id="hr" style="display: none; height: 0.5px; background-color: black;" />
                     <ul id="ul" class="userName list-unstyled navbar__list">
+                        <% activeUsers.forEach((user)=>{ %>
+                            <li class="active has-sub" id="<%=user.id%>" style="margin-bottom: 20px;">
+                                <h3 style="cursor: pointer;">
+                                    <%=user.name%>
+                                </h3>
+                            </li>
+                        <% }); %>
                     </ul>
                     <hr style="height: 1px; background-color: black;">
                     <h2 style="margin: 10px 0 20px 0">All users</h2>
@@ -256,7 +263,7 @@
                                         <input id="notificationMessage" type="text" name="notificationMessage"
                                             style="border: 0.5px solid black; padding: 5px; width: 340px; border-radius: 10px; margin-bottom: 10px;"
                                             placeholder="Notification..."><br>
-                                            <select id="notificationPosition" name="notificationPosition"
+                                        <select id="notificationPosition" name="notificationPosition"
                                             style="border: 0.5px solid black; padding: 5px; width: 340px; border-radius: 10px;">
                                             <option value="">--Select Position--</option>
                                             <option value="topRight">Top Right</option>

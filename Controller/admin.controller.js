@@ -121,10 +121,11 @@ module.exports.home = async (req, res) => {
         await connection.connect();
         const currentUser = req.cookies.user;
         const data = await connection.query('select * from ss_user_subscription');
+        const activeUsers = (await connection.query('select * from ss_user_tbl where status = true;')).rows;
         const user = data.rows;
         console.log(user);
         console.log()
-        return res.render('adminPannel/index', { currentUser, user });
+        return res.render('adminPannel/index', { currentUser, user, activeUsers });
     }
     catch (e) {
         console.log(e);
