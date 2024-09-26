@@ -91,8 +91,6 @@ io.on('connection', async (socket) => {
 
         const obj = JSON.parse(jsonstring);
 
-        console.log(obj);
-
         userSocket[obj.userId] = obj.socketId;
         const activeUsers = Object.keys(userSocket).length;
 

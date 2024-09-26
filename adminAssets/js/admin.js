@@ -512,8 +512,6 @@ socket.on('connect', async () => {
         }
 
         L.marker([ParsedLat, ParsedLon]).addTo(window.mapInstance);
-
-        console.log(ParsedLat, ParsedLon);
     });
 
     const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
