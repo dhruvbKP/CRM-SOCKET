@@ -141,7 +141,7 @@
                             placeholder="Notification...">
                         <button class="btn btn-primary mt-2 ">Send</button>
                     </form>
-                    <hr id="hr" style="display: none; height: 0.5px; background-color: black;" />
+                    <hr id="hr" style="height: 0.5px; background-color: black;" />
                     <ul id="ul" class="userName list-unstyled navbar__list">
                         <% activeUsers.forEach((user)=>{ %>
                             <li class="active has-sub" id="<%=user.id%>" style="margin-bottom: 20px;">
@@ -168,7 +168,7 @@
                                     </h3>
                                 </div>
                             </li>
-                            <% } %>
+                        <% } %>
                     </ul>
                 </nav>
             </div>
