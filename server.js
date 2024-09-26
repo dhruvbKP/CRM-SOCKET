@@ -167,7 +167,6 @@ io.on('connection', async (socket) => {
 
     const sendDeviceInfo = binaryEvent('sendDeviceInfo');
     socket.on(sendDeviceInfo, (dInfo, ip) => {
-        console.log(ip);
         socket.to(adminSocket).emit(sendDeviceInfo, dInfo, ip);
     });
 
