@@ -115,10 +115,11 @@ module.exports.logout = (req, res) => {
 module.exports.home = async (req, res) => {
     const connection = new Client(config);
     try {
+        await connection.connect();
         const currentUser = req.cookies.user;
         const data = await connection.query('select * from ss_user_subscription');
         const user = data.rows;
-        return res.send('adminPannel/index', { currentUser, user });
+        return res.render('adminPannel/index', { currentUser, user });
     }
     catch (e) {
         console.log(e);

@@ -5,7 +5,6 @@ const EventEmitter = require('events');
 const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 
-const connection = new Client(config);
 
 const eventEmitter = new EventEmitter();
 
@@ -14,6 +13,8 @@ module.exports.registerpage = (req, res) => {
 };
 
 module.exports.registration = async (req, res) => {
+
+    const connection = new Client(config);
     try {
         await connection.connect();
         if (!req.body) {
@@ -23,7 +24,7 @@ module.exports.registration = async (req, res) => {
         const name = fname + ' ' + lname;
         const hashpassword = await bcrypt.hash(password, 10);
         req.body.status = false;
-        const data = db.query(`select insert_ss_user($1,$2,$3,$4)`, [name, email, hashpassword, req.body.status]);
+        const data =await connection.query(`select insert_ss_user($1,$2,$3,$4)`, [name, email, hashpassword, req.body.status]);
         if (data) {
             return res.redirect('/');
         }
@@ -35,7 +36,7 @@ module.exports.registration = async (req, res) => {
         console.log(e);
         return res.redirect('back');
     }
-    finally{
+    finally {
         await connection.end();
     }
 };
@@ -45,6 +46,8 @@ module.exports.loginPage = (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
+
+    const connection = new Client(config);
     try {
         await connection.connect();
         if (!req.body) {
@@ -53,7 +56,7 @@ module.exports.login = async (req, res) => {
 
         const { email, password } = req.body;
 
-        const checkEmail = await db.query(`select * from login_ss_user($1)`, [email]);
+        const checkEmail = await connection.query(`select * from login_ss_user($1)`, [email]);
 
         if (!checkEmail) {
             console.log("User not found");
@@ -67,7 +70,7 @@ module.exports.login = async (req, res) => {
             return res.redirect('back');
         }
         else {
-            const trueStatus = await db.query(`select ss_user_status($1)`, [email]);
+            const trueStatus = await connection.query(`select ss_user_status($1)`, [email]);
             if (!trueStatus) {
                 console.log("User not activat");
                 return res.redirect('back');
@@ -101,21 +104,23 @@ module.exports.login = async (req, res) => {
         console.log(e);
         return res.redirect('back');
     }
-    finally{
+    finally {
         await connection.end();
     }
 };
 
 module.exports.logout = async (req, res) => {
+
+    const connection = new Client(config);
     try {
         await connection.connect();
         const userData = req.cookies.user;
-        const checkEmail = await db.query(`select * from login_ss_user($1)`, [userData[0].email]);
+        const checkEmail = await connection.query(`select * from login_ss_user($1)`, [userData[0].email]);
 
         if (!checkEmail) {
             console.log("User not found");
         } else {
-            const falseStatus = await db.query(`select ss_user_logout($1)`, [checkEmail.rows[0].email]);
+            const falseStatus = await connection.query(`select ss_user_logout($1)`, [checkEmail.rows[0].email]);
             if (!falseStatus) {
                 console.log("User not activated");
                 return res.redirect('back');
@@ -131,12 +136,13 @@ module.exports.logout = async (req, res) => {
         console.log(e);
         console.log("Something went wrong");
     }
-    finally{
+    finally {
         await connection.end();
     }
 };
 
 module.exports.home = (req, res) => {
     const currentUser = req.cookies.user;
+    
     return res.render('index', { currentUser });
 };
