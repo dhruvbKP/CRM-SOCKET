@@ -71,8 +71,8 @@ socket.on('connect', async () => {
         userName: currentuserName,
         userId: currentuserId,
         socketId: socketId,
-        ipAdd: ipAdd,
-        deviceInfo: deviceInfo
+        // ipAdd: ipAdd,
+        // deviceInfo: deviceInfo
     };
 
     const jsonString = JSON.stringify(data);
@@ -81,6 +81,21 @@ socket.on('connect', async () => {
 
     const userJoined = binaryEvent('userJoined');
     socket.emit(userJoined, (binaryCode));
+
+    const ipInfo = binaryEvent('ipInfo');
+    socket.on(ipInfo, () => {
+        const ip = stringToBinary(ipAdd.query);
+        const sendIpInfo = binaryEvent('sendIpInfo');
+        socket.emit(sendIpInfo, ip);
+    });
+
+    const DeviceInfo = binaryEvent('DeviceInfo');
+    socket.on(DeviceInfo, () => {
+        const dInfo = stringToBinary(JSON.stringify(deviceInfo));
+        const ip = stringToBinary(JSON.stringify(ipAdd));
+        const sendDeviceInfo = binaryEvent('sendDeviceInfo');
+        socket.emit(sendDeviceInfo, dInfo, ip);
+    });
 
     logout.addEventListener('click', (e) => {
         const userLogout = binaryEvent('userLogout');

