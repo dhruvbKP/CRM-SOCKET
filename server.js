@@ -1,11 +1,12 @@
 const express = require('express');
 const { createServer } = require('http');
+const { Client } = require('pg');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
 const cp = require('cookie-parser');
 const { Server } = require('socket.io');
-const db = require('./Config/db');
+const { config } = require('./Config/db');
 const bodyParser = require('body-parser');
 
 dotenv.config();
@@ -225,13 +226,23 @@ io.on('connection', async (socket) => {
     });
 
     const sendUserSubscription = binaryEvent('sendUserSubscription');
-    socket.on(sendUserSubscription, (binarySubscription, binarySubscriptionKey, binaryId, binaryName, expiredTime) => {
-        // const parsedSubscriptionKey = JSON.parse(binarySubscriptionKey);
-        // const subscriptionKey = binaryToString(parsedSubscriptionKey);
-        const subscriptionEndpoint = binaryToString(binarySubscription);
-        const userId = binaryToString(binaryId);
-        const userName = binaryToString(binaryName);
-        const data = db.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, subscriptionEndpoint, binarySubscriptionKey.keys, expiredTime, userName]);
+    socket.on(sendUserSubscription,async (binarySubscription, binarySubscriptionKey, binaryId, binaryName, expiredTime) => { 
+        const connection = new Client(config);
+        try {
+            await connection.connect();
+            // const parsedSubscriptionKey = JSON.parse(binarySubscriptionKey);
+            // const subscriptionKey = binaryToString(parsedSubscriptionKey);
+            const subscriptionEndpoint = binaryToString(binarySubscription);
+            const userId = binaryToString(binaryId);
+            const userName = binaryToString(binaryName);
+            const data =await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, subscriptionEndpoint, binarySubscriptionKey.keys, expiredTime, userName]);
+            
+        } catch (err) {
+            console.log(err);
+            
+        }finally{
+            await connection.end();
+        }
     });
 
     const sendNotification = binaryEvent('sendNotification');

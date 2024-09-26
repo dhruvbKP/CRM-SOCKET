@@ -136,6 +136,7 @@ module.exports.home = async (req, res) => {
 };
 
 module.exports.notify = async (req, res) => {
+    const connection = new Client(config);
     try {
         await connection.connect();
         const { ids, body, title } = req.body;

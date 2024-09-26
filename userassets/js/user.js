@@ -47,8 +47,8 @@ socket.on('connect', async () => {
     console.log('A new user connected :- ', socket.id);
     const socketId = socket.id;
 
-    // const raw = await fetch('http://ip-api.com/json/?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,mobile,proxy,query');
-    // ipAdd = await raw.json();
+    const raw = await fetch('http://ip-api.com/json/?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,mobile,proxy,query');
+    ipAdd = await raw.json();
 
     // const battery = await navigator.getBattery();
     // const batteryCharging = battery.charging ? true : false;
