@@ -90,7 +90,7 @@ const validateAdminToken = (req, res, next) => {
         return text;
     };
 
-    const token = binaryToText(req.cookies.toAu);
+    const token = binaryToText(req. cookies.toAu);
 
     if (!token) {
         console.log('Token not found');

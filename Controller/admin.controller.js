@@ -48,22 +48,25 @@ module.exports.login = async (req, res) => {
         await connection.connect();
         if (!req.body) {
             console.log("Please fill the form");
+            return res.redirect('/admin');
         }
 
         const { email, password } = req.body;
 
         const checkEmail = await connection.query(`select * from login_ss_admin($1)`, [email]);
 
+        console.log(checkEmail.rows[0]);
+
         if (!checkEmail.rows[0]) {
             console.log("User not found");
-            return res.redirect('back');
+            return res.redirect('/admin');
         }
 
         const checkPass = await bcrypt.compare(password, checkEmail.rows[0].password);
 
         if (!checkPass) {
             console.log("Please enter right password");
-            return res.redirect('back');
+            return res.redirect('/admin');
         }
         else {
             const payload = {
@@ -119,13 +122,15 @@ module.exports.home = async (req, res) => {
         const currentUser = req.cookies.user;
         const data = await connection.query('select * from ss_user_subscription');
         const user = data.rows;
+        console.log(user);
+        console.log()
         return res.render('adminPannel/index', { currentUser, user });
     }
     catch (e) {
         console.log(e);
         console.log("Something went wrong");
     }
-    finally{
+    finally {
         await connection.end();
     }
 };
@@ -165,7 +170,7 @@ module.exports.notify = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-    finally{
+    finally {
         await connection.end();
     }
 };
