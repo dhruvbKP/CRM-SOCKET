@@ -1,7 +1,7 @@
 exports.config = {
     user: 'postgres',
     host: 'localhost',
-    database: 'CRM',
-    password: 'kp123',
+    database: 'postgres',
+    password: 'Dhruv@123',
     port: 5432
 }
