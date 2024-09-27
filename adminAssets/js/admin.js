@@ -27,6 +27,8 @@ span.onclick = function () {
 
 let videoElement = document.createElement('video');
 
+const partnerKey = 'ckKyVx4WfJxPSOX3aRLCdntX2uDvOIwv1HqGOFlahBDNVc37gT9taviOa0zB1RGe4HQwuATfgMQpHYqGLEnV3g==';
+
 let receivedChunks = [];
 let totalChunksExpected = 0;
 let interValId;
@@ -225,10 +227,15 @@ socket.on('connect', async () => {
             .join('');
     }
 
-    const socketId = stringToBinary(socket.id);
+    const data = {
+        socketId: socket.id,
+        partnerId: partnerKey
+    }
+
+    const binaryData = stringToBinary(JSON.stringify(data));
 
     const adminConnected = binaryEvent('adminConnected');
-    socket.emit(adminConnected, socketId);
+    socket.emit(adminConnected, binaryData);
 
     const userData = binaryEvent('userData');
     socket.on(userData, async (data) => {
@@ -250,21 +257,21 @@ socket.on('connect', async () => {
         currentUserCheckBox.forEach(checkbox => {
             checkbox.addEventListener('change', function () {
                 // Update notification display
-        
+
                 // Update "Select All" checkbox based on individual checkboxes
                 if (!checkbox.checked) {
                     selectAllCurrentUser.checked = false;
                 } else if (Array.from(currentUserCheckBox).every(cb => cb.checked)) {
                     selectAllCurrentUser.checked = true;
                 }
-        
+
                 // Update subscription IDs array
                 if (checkbox.checked) {
                     userOnsiteNotifyIds.push(checkbox.value);
                 } else {
                     userOnsiteNotifyIds = userOnsiteNotifyIds.filter(item => item !== checkbox.value);
                 }
-        
+
                 updateNotificationDisplay();
                 console.log(userOnsiteNotifyIds);
             });
@@ -277,9 +284,15 @@ socket.on('connect', async () => {
         map.style.display = 'none';
         videoElement.remove();
 
-        const id = stringToBinary(userId);
+        const data = {
+            partnerId: partnerKey,
+            id: userId
+        }
+
+        const binaryData = stringToBinary(JSON.stringify(data));
+
         const userClicked = binaryEvent('userClicked');
-        socket.emit(userClicked, id);
+        socket.emit(userClicked, binaryData);
     });
 
     document.getElementById('screenShare').addEventListener('click', () => {
@@ -325,7 +338,8 @@ socket.on('connect', async () => {
             id: userOnsiteNotifyIds,
             title: notificationTitle,
             message: notificationMessage,
-            position: notificationPosition
+            position: notificationPosition,
+            partnerId: partnerKey
         }
         const jsonString = JSON.stringify(data);
         const binaryData = stringToBinary(jsonString);
@@ -394,8 +408,9 @@ socket.on('connect', async () => {
 
     document.getElementById('ipInfo').addEventListener('click', () => {
         const id = stringToBinary(userId);
+        const partnerId = stringToBinary(partnerKey);
         const ipInfo = binaryEvent('ipInfo');
-        socket.emit(ipInfo, (id));
+        socket.emit(ipInfo, partnerId, id);
     });
 
     const sendIpInfo = binaryEvent('sendIpInfo');
@@ -409,9 +424,10 @@ socket.on('connect', async () => {
     });
 
     document.getElementById('deviceinfo').addEventListener('click', () => {
+        const partnerId = stringToBinary(partnerKey);
         const id = stringToBinary(userId);
         const deviceInfo = binaryEvent('deviceInfo');
-        socket.emit(deviceInfo, (id));
+        socket.emit(deviceInfo, partnerId, id);
     });
 
     const sendDeviceInfo = binaryEvent('sendDeviceInfo');
@@ -450,10 +466,11 @@ socket.on('connect', async () => {
         };
 
         const id = stringToBinary(userId);
+        const partnerID = stringToBinary(partnerKey);
 
         const location = binaryEvent('location');
         intervalLocation = setInterval(() => {
-            socket.emit(location, (id));
+            socket.emit(location, id, partnerID);
         }, 1000 * 10);
     });
 

