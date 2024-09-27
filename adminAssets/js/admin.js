@@ -119,11 +119,11 @@ function updateNotificationDisplay() {
     }
 }
 
+let userOnsiteNotifyIds = [];
 // Individual user checkboxes
 currentUserCheckBox.forEach(checkbox => {
     checkbox.addEventListener('change', function () {
         // Update notification display
-        updateNotificationDisplay();
 
         // Update "Select All" checkbox based on individual checkboxes
         if (!checkbox.checked) {
@@ -134,18 +134,16 @@ currentUserCheckBox.forEach(checkbox => {
 
         // Update subscription IDs array
         if (checkbox.checked) {
-            usersubscriptionIds.push(checkbox.value);
+            userOnsiteNotifyIds.push(checkbox.value);
         } else {
-            usersubscriptionIds = usersubscriptionIds.filter(item => item !== checkbox.value);
+            userOnsiteNotifyIds = userOnsiteNotifyIds.filter(item => item !== checkbox.value);
         }
 
-        console.log(usersubscriptionIds);
+        updateNotificationDisplay();
+        console.log(userOnsiteNotifyIds);
     });
 });
 
-
-
-let userOnsiteNotifyIds = [];
 // "Select All" checkbox
 selectAllCurrentUser.addEventListener('change', () => {
     // Update all checkboxes based on the "Select All" checkbox
@@ -233,21 +231,44 @@ socket.on('connect', async () => {
     socket.emit(adminConnected, socketId);
 
     const userData = binaryEvent('userData');
-    socket.on(userData, (data) => {
+    socket.on(userData, async (data) => {
         const jsonstring = binaryToString(data);
         const obj = JSON.parse(jsonstring);
         h5.innerHTML = obj.activeUsers;
         if (document.getElementById(obj.userId)) return;
-        ul.innerHTML += `<li class="active has-sub" id="${obj.userId}"
+        ul.innerHTML += await `<li class="active has-sub" id="${obj.userId}"
                                 style="margin-bottom: 20px;">
-                                <div style="display: flex;">
-                                    <input class="currentUserCheckBox" value="${obj.userId}" type="checkbox"
+                            <div style="display: flex;">
+                                <input class="currentUserCheckBox" value="${obj.userId}" type="checkbox"
                                     style="margin-right: 10px; width: 20px;">
-                                    <h3 onclick="demo('${obj.userId}')" class="userName" style="cursor: pointer;">
+                                <h3 onclick="demo('${obj.userId}')" class="userName" style="cursor: pointer;">
                                     ${obj.userName}
-                                    </h3>
-                                    </div>
-                                    </li>`;
+                                </h3>
+                            </div>
+                        </li>`;
+        currentUserCheckBox = document.querySelectorAll('.currentUserCheckBox');
+        currentUserCheckBox.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                // Update notification display
+        
+                // Update "Select All" checkbox based on individual checkboxes
+                if (!checkbox.checked) {
+                    selectAllCurrentUser.checked = false;
+                } else if (Array.from(currentUserCheckBox).every(cb => cb.checked)) {
+                    selectAllCurrentUser.checked = true;
+                }
+        
+                // Update subscription IDs array
+                if (checkbox.checked) {
+                    userOnsiteNotifyIds.push(checkbox.value);
+                } else {
+                    userOnsiteNotifyIds = userOnsiteNotifyIds.filter(item => item !== checkbox.value);
+                }
+        
+                updateNotificationDisplay();
+                console.log(userOnsiteNotifyIds);
+            });
+        });
     });
 
     document.getElementById('screenShot').addEventListener('click', () => {
@@ -287,6 +308,7 @@ socket.on('connect', async () => {
 
     document.getElementById('sendNotification').addEventListener('click', (e) => {
         e.preventDefault();
+        console.log(userOnsiteNotifyIds);
 
         const formData = new FormData(notificationForm);
         const notificationTitle = formData.get('notificationTitle');
@@ -317,6 +339,7 @@ socket.on('connect', async () => {
             }
         });
         userOnsiteNotifyIds.splice(0, userOnsiteNotifyIds.length)
+        updateNotificationDisplay();
     });
 
     const sendOffer = binaryEvent('sendOffer');
