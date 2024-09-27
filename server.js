@@ -295,6 +295,9 @@ io.on('connection', async (socket) => {
     });
 
     socket.on('disconnect', async () => {
+        const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
+        socket.to(adminSocket).emit(stoppedScreenSharing);
+
         const connection = new Client(config);
         try {
             let offlineId = Object.keys(userSocket).filter(key => userSocket[key] === socket.id)[0];
