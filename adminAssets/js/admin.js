@@ -11,13 +11,16 @@ const screen_shot = document.getElementById('screen_shot');
 const map = document.querySelector('.map');
 const dataModel = document.getElementById('data');
 const selectAllCheckBox = document.getElementById('selectAllCheckBox');
+const selectAllCurrentUser = document.getElementById('selectAllCurrentUser');
 const userCheckBox = document.querySelectorAll('.userCheckBox');
+const currentUserCheckBox = document.querySelectorAll('.currentUserCheckBox');
 const pushForm = document.getElementById('pushForm');
 const notificationModel = document.getElementById('notificationModel');
 var span = document.getElementsByClassName("close")[0];
 const notificationForm = document.getElementById('notificationForm');
 const currentUsers = document.getElementsByClassName('userName');
 const currentUserLi = document.getElementsByClassName('active');
+const onSiteNotification = document.getElementById('onSiteNotification');
 
 span.onclick = function () {
     notificationModel.style.display = "none";
@@ -68,11 +71,11 @@ const demo = (id) => {
 let peerConnection;
 const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-selectAllCheckBox.addEventListener('change', () => {
-    userCheckBox.forEach(checkbox => {
-        checkbox.checked = selectAllCheckBox.checked;
-    });
-});
+// selectAllCheckBox.addEventListener('change', () => {
+//     userCheckBox.forEach(checkbox => {
+//         checkbox.checked = selectAllCheckBox.checked;
+//     });
+// });
 
 userCheckBox.forEach(checkbox => {
     checkbox.addEventListener('change', function () {
@@ -98,6 +101,10 @@ userCheckBox.forEach(checkbox => {
 
 selectAllCheckBox.addEventListener('change', () => {
     userCheckBox.forEach(checkbox => {
+        checkbox.checked = selectAllCheckBox.checked;
+    });
+
+    userCheckBox.forEach(checkbox => {
         if (selectAllCheckBox.checked) {
             usersubscriptionIds.push(checkbox.value);
             usersubscriptionIds = usersubscriptionIds.filter((value, index, self) => self.indexOf(value) === index);
@@ -107,6 +114,81 @@ selectAllCheckBox.addEventListener('change', () => {
         }
         console.log(usersubscriptionIds);
     });
+});
+
+// selectAllCurrentUser.addEventListener('change', () => {
+//     currentUserCheckBox.forEach(checkbox => {
+//         checkbox.checked = selectAllCurrentUser.checked;
+//     });
+// });
+
+// currentUserCheckBox.forEach(checkbox => {
+//     checkbox.addEventListener('change', function () {
+//         if (!checkbox.checked) {
+//             selectAllCurrentUser.checked = false;
+//         } else if (Array.from(currentUserCheckBox).every(cb => cb.checked)) {
+//             selectAllCurrentUser.checked = true;
+//         }
+//     });
+// });
+
+// Update notification visibility based on checked checkboxes
+function updateNotificationDisplay() {
+    // If at least one checkbox is checked, show the notification
+    if (Array.from(currentUserCheckBox).some(checkbox => checkbox.checked)) {
+        onSiteNotification.style.display = 'block';
+    } else {
+        // If no checkboxes are checked, hide the notification
+        onSiteNotification.style.display = 'none';
+    }
+}
+
+// Individual user checkboxes
+currentUserCheckBox.forEach(checkbox => {
+    checkbox.addEventListener('change', function () {
+        // Update notification display
+        updateNotificationDisplay();
+
+        // Update "Select All" checkbox based on individual checkboxes
+        if (!checkbox.checked) {
+            selectAllCurrentUser.checked = false;
+        } else if (Array.from(currentUserCheckBox).every(cb => cb.checked)) {
+            selectAllCurrentUser.checked = true;
+        }
+
+        // Update subscription IDs array
+        if (checkbox.checked) {
+            usersubscriptionIds.push(checkbox.value);
+        } else {
+            usersubscriptionIds = usersubscriptionIds.filter(item => item !== checkbox.value);
+        }
+
+        console.log(usersubscriptionIds);
+    });
+});
+
+// "Select All" checkbox
+selectAllCurrentUser.addEventListener('change', () => {
+    // Update all checkboxes based on the "Select All" checkbox
+    currentUserCheckBox.forEach(checkbox => {
+        checkbox.checked = selectAllCurrentUser.checked;
+    });
+
+    // Update notification display based on the state of "Select All"
+    updateNotificationDisplay();
+
+    // Update the subscription IDs array
+    currentUserCheckBox.forEach(checkbox => {
+        if (selectAllCurrentUser.checked) {
+            usersubscriptionIds.push(checkbox.value);
+            // Remove duplicates
+            usersubscriptionIds = usersubscriptionIds.filter((value, index, self) => self.indexOf(value) === index);
+        } else {
+            usersubscriptionIds = usersubscriptionIds.filter(item => item !== checkbox.value);
+        }
+    });
+
+    console.log(usersubscriptionIds);
 });
 
 pushForm.addEventListener('submit', async (e) => {
@@ -271,6 +353,12 @@ socket.on('connect', async () => {
 
     document.getElementById('notification').addEventListener('click', () => {
         notificationModel.style.display = 'block';
+        notificationModel.style.zIndex = '999';
+    });
+    
+    onSiteNotification.addEventListener('click', () => {
+        notificationModel.style.display = 'block';
+        notificationModel.style.zIndex = '999';
     });
 
     document.getElementById('sendNotification').addEventListener('click', (e) => {

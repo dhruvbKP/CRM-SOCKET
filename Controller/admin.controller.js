@@ -5,7 +5,6 @@ const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 const webPush = require('../Config/pushConfig.js');
 
-
 module.exports.registrationPage = (req, res) => {
     return res.render('adminPannel/registration');
 };

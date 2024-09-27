@@ -142,12 +142,21 @@
                         <button class="btn btn-primary mt-2 ">Send</button>
                     </form>
                     <hr id="hr" style="height: 0.5px; background-color: black;" />
+                    <div id="selectAll" style="display: flex; margin-bottom: 20px;">
+                        <input id="selectAllCurrentUser" type="checkBox" style="width: 20px; margin-right: 10px;">
+                        <h5 style="font-size: 18px;">Select all</h5>
+                    </div>
                     <ul id="ul" class="userName list-unstyled navbar__list">
                         <% activeUsers.forEach((user)=>{ %>
-                            <li onclick="demo('<%= user.id %>')" class="active has-sub" id="<%=user.id%>" style="margin-bottom: 20px;">
-                                <h3 class="userName" style="cursor: pointer;">
-                                    <%=user.name%>
-                                </h3>
+                            <li class="active has-sub" id="<%=user.id%>"
+                                style="margin-bottom: 20px;">
+                                <div style="display: flex;">
+                                    <input class="currentUserCheckBox" value="<%= user.id %>" type="checkbox"
+                                        style="margin-right: 10px; width: 20px;">
+                                    <h3 onclick="demo('<%= user.id %>')" class="userName" style="cursor: pointer;">
+                                        <%=user.name%>
+                                    </h3>
+                                </div>
                             </li>
                         <% }); %>
                     </ul>
@@ -168,7 +177,7 @@
                                     </h3>
                                 </div>
                             </li>
-                        <% } %>
+                            <% } %>
                     </ul>
                 </nav>
             </div>
@@ -250,6 +259,19 @@
             <div class="main-content">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
+                        <div id="onSiteNotification" style="width: 24%; display: none;" class="overview-item overview-item--c2">
+                            <div class="overview__inner">
+                                <div class="overview-box clearfix">
+                                    <div class="icon">
+                                        <i class="fa-regular fa-bell"></i>
+                                    </div>
+                                    <hr>
+                                    <div class="text">
+                                        <h2>On-site notification</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div id="notificationModel" class="modal">
                             <!-- Modal content -->
                             <div class="modal-content">
@@ -368,7 +390,7 @@
                                             </div>
                                             <hr>
                                             <div class="text">
-                                                <h2>Notification</h2>
+                                                <h2>On-site notification</h2>
                                             </div>
                                         </div>
                                     </div>

@@ -93,8 +93,6 @@ io.on('connection', async (socket) => {
             const jsonstring = binaryToString(data);
             const obj = JSON.parse(jsonstring);
 
-            console.log(obj);
-
             // Store user socket info
             userSocket[obj.userId] = obj.socketId;
 
@@ -120,6 +118,8 @@ io.on('connection', async (socket) => {
                 deviceInfo: obj.deviceInfo,
                 activeUsers: activeUsers
             };
+
+            console.log(udata);
 
             // Convert data to JSON string and then to binary
             const jsonString = JSON.stringify(udata);
@@ -296,7 +296,6 @@ io.on('connection', async (socket) => {
         const connection = new Client(config);
         try {
             let offlineId = Object.keys(userSocket).filter(key => userSocket[key] === socket.id)[0];
-            console.log(userSocket);
 
             if (offlineId) {
                 await connection.connect();
