@@ -104,13 +104,13 @@ io.on('connection', async (socket) => {
             // Store user socket info
             // userSocket[obj.userId] = obj.socketId;
 
-            if (!users[obj.partnerId]) {
-                users[obj.partnerId] = {};
+            if (!users[obj.partneKey]) {
+                users[obj.partneKey] = {};
             }
 
             console.log(obj);
 
-            users[obj.partnerId][obj.userId] = obj.socketId;
+            users[obj.partneKey][obj.userId] = obj.socketId;
 
             console.log(users);
 
@@ -203,9 +203,12 @@ io.on('connection', async (socket) => {
     // });
 
     const request_screen_share = binaryEvent('request_screen_share');
-    socket.on(request_screen_share, (id) => {
-        userId = binaryToString(id);
-        const userSocketId = userSocket[userId];
+    socket.on(request_screen_share, (data) => {
+        const stringData = binaryToString(data);
+        console.log(stringData);
+        const parsedData = JSON.parse(stringData);
+        console.log(parsedData, '--parsedData--');
+        const userSocketId = users[parsedData.partnerId][parsedData.id];
         const start_screen_share = binaryEvent('start_screen_share');
         socket.to(userSocketId).emit(start_screen_share);
     });
@@ -292,8 +295,10 @@ io.on('connection', async (socket) => {
             const subscriptionEndpoint = binaryToString(binarySubscription);
             const userId = binaryToString(binaryId);
             const userName = binaryToString(binaryName);
+            // let existSubscription = connection.query(`select 
             const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, subscriptionEndpoint, binarySubscriptionKey.keys, expiredTime, userName]);
-
+            console.log(data.rows);
+            
         } catch (err) {
             console.log(err);
 

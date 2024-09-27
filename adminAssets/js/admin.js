@@ -303,10 +303,15 @@ socket.on('connect', async () => {
             ssDiv.children[0].remove();
         }
 
-        const id = stringToBinary(userId);
+        const data = {
+            partnerId: partnerKey,
+            id: userId
+        }
+
+        const binaryData = stringToBinary(JSON.stringify(data));
 
         const request_screen_share = binaryEvent('request_screen_share');
-        socket.emit(request_screen_share, id);
+        socket.emit(request_screen_share, binaryData);
     });
 
     // document.getElementById('notification').addEventListener('click', () => {
