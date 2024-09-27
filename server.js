@@ -105,11 +105,7 @@ io.on('connection', async (socket) => {
             } else {
                 console.log("User not activated");
             }
-
-            // Get the active user count
             const activeUsers = Object.keys(userSocket).length;
-
-            // Prepare the data to send
             const udata = {
                 userName: obj.userName,
                 userId: obj.userId,
@@ -118,25 +114,17 @@ io.on('connection', async (socket) => {
                 deviceInfo: obj.deviceInfo,
                 activeUsers: activeUsers
             };
-
-            console.log(udata);
-
-            // Convert data to JSON string and then to binary
             const jsonString = JSON.stringify(udata);
             const binaryCode = stringToBinary(jsonString);
-
-            // Prepare and emit the event to admin socket
             const userData = binaryEvent('userData');
             socket.to(adminSocket).emit(userData, binaryCode);
 
         } catch (err) {
             console.error('Error during processing:', err);
         } finally {
-            // Close the connection
             await connection.end();
         }
     });
-
 
     const userClicked = binaryEvent('userClicked');
     socket.on(userClicked, (id) => {
