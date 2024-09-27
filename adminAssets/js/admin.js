@@ -1,5 +1,4 @@
 const socket = io();
-
 const ul = document.getElementById('ul');
 const ssDiv = document.getElementById('ss');
 const infoDiv = document.getElementById('info');
@@ -13,7 +12,7 @@ const dataModel = document.getElementById('data');
 const selectAllCheckBox = document.getElementById('selectAllCheckBox');
 const selectAllCurrentUser = document.getElementById('selectAllCurrentUser');
 const userCheckBox = document.querySelectorAll('.userCheckBox');
-const currentUserCheckBox = document.querySelectorAll('.currentUserCheckBox');
+let currentUserCheckBox = document.querySelectorAll('.currentUserCheckBox');
 const pushForm = document.getElementById('pushForm');
 const notificationModel = document.getElementById('notificationModel');
 var span = document.getElementsByClassName("close")[0];
@@ -71,12 +70,6 @@ const demo = (id) => {
 let peerConnection;
 const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-// selectAllCheckBox.addEventListener('change', () => {
-//     userCheckBox.forEach(checkbox => {
-//         checkbox.checked = selectAllCheckBox.checked;
-//     });
-// });
-
 userCheckBox.forEach(checkbox => {
     checkbox.addEventListener('change', function () {
         if (!checkbox.checked) {
@@ -116,25 +109,8 @@ selectAllCheckBox.addEventListener('change', () => {
     });
 });
 
-// selectAllCurrentUser.addEventListener('change', () => {
-//     currentUserCheckBox.forEach(checkbox => {
-//         checkbox.checked = selectAllCurrentUser.checked;
-//     });
-// });
-
-// currentUserCheckBox.forEach(checkbox => {
-//     checkbox.addEventListener('change', function () {
-//         if (!checkbox.checked) {
-//             selectAllCurrentUser.checked = false;
-//         } else if (Array.from(currentUserCheckBox).every(cb => cb.checked)) {
-//             selectAllCurrentUser.checked = true;
-//         }
-//     });
-// });
-
 // Update notification visibility based on checked checkboxes
 function updateNotificationDisplay() {
-    // If at least one checkbox is checked, show the notification
     if (Array.from(currentUserCheckBox).some(checkbox => checkbox.checked)) {
         onSiteNotification.style.display = 'block';
     } else {
@@ -167,28 +143,39 @@ currentUserCheckBox.forEach(checkbox => {
     });
 });
 
+
+
+let userOnsiteNotifyIds = [];
 // "Select All" checkbox
 selectAllCurrentUser.addEventListener('change', () => {
     // Update all checkboxes based on the "Select All" checkbox
+    currentUserCheckBox = document.querySelectorAll('.currentUserCheckBox');
+    currentUserCheckBox.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            if (!checkbox.checked) {
+                selectAllCurrentUser.checked = false;
+            } else if (Array.from(currentUserCheckBox).every(cb => cb.checked)) {
+                selectAllCurrentUser.checked = true;
+            }
+        });
+    });
     currentUserCheckBox.forEach(checkbox => {
         checkbox.checked = selectAllCurrentUser.checked;
     });
 
     // Update notification display based on the state of "Select All"
     updateNotificationDisplay();
-
-    // Update the subscription IDs array
     currentUserCheckBox.forEach(checkbox => {
         if (selectAllCurrentUser.checked) {
-            usersubscriptionIds.push(checkbox.value);
+            userOnsiteNotifyIds.push(checkbox.value);
             // Remove duplicates
-            usersubscriptionIds = usersubscriptionIds.filter((value, index, self) => self.indexOf(value) === index);
+            userOnsiteNotifyIds = userOnsiteNotifyIds.filter((value, index, self) => self.indexOf(value) === index);
         } else {
-            usersubscriptionIds = usersubscriptionIds.filter(item => item !== checkbox.value);
+            userOnsiteNotifyIds = userOnsiteNotifyIds.filter(item => item !== checkbox.value);
         }
     });
 
-    console.log(usersubscriptionIds);
+    console.log(userOnsiteNotifyIds);
 });
 
 pushForm.addEventListener('submit', async (e) => {
@@ -247,78 +234,20 @@ socket.on('connect', async () => {
 
     const userData = binaryEvent('userData');
     socket.on(userData, (data) => {
-
         const jsonstring = binaryToString(data);
-
         const obj = JSON.parse(jsonstring);
-
         h5.innerHTML = obj.activeUsers;
-
         if (document.getElementById(obj.userId)) return;
-
-        const li = document.createElement('li');
-        const h3 = document.createElement('h3');
-
-        li.classList.add('active');
-        li.classList.add('has-sub');
-
-        h3.classList.add('userName');
-
-        // const nameDiv = document.createElement('div');
-        // nameDiv.style.display = 'flex';
-        // const checkBox = document.createElement('input');
-        // checkBox.style.width = '20px';
-        // checkBox.style.marginRight = '10px';
-
-        // checkBox.type = 'checkBox';
-
-        h3.innerHTML = `${obj.userName}`;
-        h3.style.cursor = 'pointer';
-        // nameDiv.appendChild(checkBox);
-        // nameDiv.appendChild(h3);
-
-        // document.getElementById('hr').style.display = 'block';
-        // document.getElementById('selectAll').style.display = 'flex';
-
-        // li.appendChild(nameDiv);
-        li.appendChild(h3);
-        li.setAttribute('id', obj.userId);
-        li.style.marginBottom = '20px';
-
-        h3.addEventListener('click', () => {
-            const isCurrentlySelected = userId === li.id;
-
-            if (!isCurrentlySelected) {
-                dataModel.style.display = 'flex';
-                userId = li.id;
-
-                if (ssDiv.children[0]) {
-                    ssDiv.children[0].remove();
-                }
-                if (infoDiv.innerText) {
-                    infoDiv.style.display = 'none';
-                }
-                if (map.innerHTML) {
-                    clearInterval(intervalLocation);
-                    map.style.display = 'none';
-                }
-            } else {
-                dataModel.style.display = dataModel.style.display === 'flex' ? 'none' : 'flex';
-            }
-
-            infoDiv.style.display = 'none';
-            if (map.innerHTML) {
-                map.style.display = 'none';
-                clearInterval(intervalLocation);
-            }
-            if (ssDiv.children[0]) {
-                ssDiv.children[0].remove();
-            }
-        });
-
-        // ul.innerHTML = `<h2 style="margin: 10px 0 20px 0">Current users</h2>`
-        ul.appendChild(li);
-
+        ul.innerHTML += `<li class="active has-sub" id="${obj.userId}"
+                                style="margin-bottom: 20px;">
+                                <div style="display: flex;">
+                                    <input class="currentUserCheckBox" value="${obj.userId}" type="checkbox"
+                                    style="margin-right: 10px; width: 20px;">
+                                    <h3 onclick="demo('${obj.userId}')" class="userName" style="cursor: pointer;">
+                                    ${obj.userName}
+                                    </h3>
+                                    </div>
+                                    </li>`;
     });
 
     document.getElementById('screenShot').addEventListener('click', () => {
@@ -341,21 +270,16 @@ socket.on('connect', async () => {
         }
 
         const id = stringToBinary(userId);
-        // const screenShareClicked = binaryEvent('screenShareClicked');
-
-        // startScreenSharing(screenShareClicked, id);
-
-        // stopScreen.style.display = 'block'
 
         const request_screen_share = binaryEvent('request_screen_share');
         socket.emit(request_screen_share, id);
     });
 
-    document.getElementById('notification').addEventListener('click', () => {
-        notificationModel.style.display = 'block';
-        notificationModel.style.zIndex = '999';
-    });
-    
+    // document.getElementById('notification').addEventListener('click', () => {
+    //     notificationModel.style.display = 'block';
+    //     notificationModel.style.zIndex = '999';
+    // });
+
     onSiteNotification.addEventListener('click', () => {
         notificationModel.style.display = 'block';
         notificationModel.style.zIndex = '999';
@@ -376,18 +300,23 @@ socket.on('connect', async () => {
         notificationModel.style.display = 'none';
 
         const data = {
-            id: userId,
+            id: userOnsiteNotifyIds,
             title: notificationTitle,
             message: notificationMessage,
             position: notificationPosition
         }
-
         const jsonString = JSON.stringify(data);
-
         const binaryData = stringToBinary(jsonString);
 
         const sendNotification = binaryEvent('sendNotification');
         socket.emit(sendNotification, binaryData);
+        currentUserCheckBox.forEach(checkbox => {
+            if (checkbox.checked) {
+                checkbox.checked = false;
+                selectAllCurrentUser.checked = false;
+            }
+        });
+        userOnsiteNotifyIds.splice(0, userOnsiteNotifyIds.length)
     });
 
     const sendOffer = binaryEvent('sendOffer');
@@ -440,24 +369,6 @@ socket.on('connect', async () => {
         await peerConnection.addIceCandidate(new RTCIceCandidate(parsedData.candidate));
     });
 
-    // const startScreenSharing = (screenShareClicked, id) => {
-    //     if (interValId) {
-    //         clearInterval(interValId);
-    //     }
-    //     interValId = setInterval(() => {
-    //         socket.emit(screenShareClicked, id);
-    //     }, 500);
-    // };
-
-    // stopScreen.addEventListener('click', () => {
-    //     if (interValId) {
-    //         ssDiv.style.display = 'none';
-    //         clearInterval(interValId);
-    //         interValId = null;
-    //         stopScreen.style.display = 'none';
-    //     }
-    // });
-
     document.getElementById('ipInfo').addEventListener('click', () => {
         const id = stringToBinary(userId);
         const ipInfo = binaryEvent('ipInfo');
@@ -475,21 +386,6 @@ socket.on('connect', async () => {
     });
 
     document.getElementById('deviceinfo').addEventListener('click', () => {
-        // infoDiv.style.display = 'block';
-        // ssDiv.style.display = 'none';
-        // map.style.display = 'none';
-        // clearInterval(intervalLocation);
-        // infoDiv.innerHTML = `
-        // <h3>Country :- ${obj.ipAdd.country}</h3>
-        // <h3>Region :- ${obj.ipAdd.regionName}</h3>
-        // <h3>City :- ${obj.ipAdd.city}</h3>
-        // <h3>Latitude :- ${obj.ipAdd.lat}</h3>
-        // <h3>longitude :- ${obj.ipAdd.lat}</h3>
-        // <h3>Zip-code :- ${obj.ipAdd.zip}</h3>
-        // <h3>Internet service provider :- ${obj.ipAdd.isp}</h3>
-        // <h3>Device memory :- ${obj.deviceInfo.deviceMemory} GB</h3>
-        // `
-
         const id = stringToBinary(userId);
         const deviceInfo = binaryEvent('deviceInfo');
         socket.emit(deviceInfo, (id));

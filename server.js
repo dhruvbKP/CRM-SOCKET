@@ -282,14 +282,16 @@ io.on('connection', async (socket) => {
 
         const parsedData = JSON.parse(obj);
 
-        const userSocketId = userSocket[parsedData.id];
 
         const jsonString = JSON.stringify(parsedData);
 
         const binaryData = stringToBinary(jsonString);
 
         const sendNotification = binaryEvent('sendNotification');
-        socket.to(userSocketId).emit(sendNotification, (binaryData));
+        parsedData.id.forEach(element => {
+            const userSocketId = userSocket[element];
+            socket.to(userSocketId).emit(sendNotification, (binaryData));
+        });
     });
 
     socket.on('disconnect', async () => {
