@@ -49,7 +49,9 @@ var userSocket = {};
 
 var partners = {};
 
-var users = {}
+var users = {};
+
+var screenShare = {};
 
 function binaryToString(binaryStr) {
     return binaryStr.split(' ').map(bin => {
@@ -85,9 +87,7 @@ io.on('connection', async (socket) => {
     const adminConnected = binaryEvent('adminConnected');
     socket.on(adminConnected, (data) => {
         const stringData = binaryToString(data);
-        console.log(stringData);
         const parsedData = JSON.parse(stringData);
-        console.log(parsedData);
         partners[parsedData.partnerId] = parsedData.socketId;
         console.log("Admin socket id :- ", parsedData.socketId);
     });
@@ -104,15 +104,11 @@ io.on('connection', async (socket) => {
             // Store user socket info
             // userSocket[obj.userId] = obj.socketId;
 
-            if (!users[obj.partneKey]) {
-                users[obj.partneKey] = {};
+            if (!users[obj.partnerId]) {
+                users[obj.partnerId] = {};
             }
 
-            console.log(obj);
-
-            users[obj.partneKey][obj.userId] = obj.socketId;
-
-            console.log(users);
+            users[obj.partnerId][obj.userId] = obj.socketId;
 
             // Query the database to check user status
             const result = await connection.query(`SELECT ss_user_status($1)`, [obj.userId]);
@@ -137,8 +133,9 @@ io.on('connection', async (socket) => {
             const jsonString = JSON.stringify(udata);
             const binaryCode = stringToBinary(jsonString);
             const userData = binaryEvent('userData');
-            socket.to(adminSocket).emit(userData, binaryCode);
 
+            const partnerId = partners[obj.partnerId];
+            socket.to(partnerId).emit(userData, binaryCode);
         } catch (err) {
             console.error('Error during processing:', err);
         } finally {
@@ -149,11 +146,8 @@ io.on('connection', async (socket) => {
     const userClicked = binaryEvent('userClicked');
     socket.on(userClicked, (data) => {
         const stringData = binaryToString(data);
-        console.log(stringData);
         const parsedData = JSON.parse(stringData);
-        console.log(parsedData, '--parsedData--');
         const userSocketId = users[parsedData.partnerId][parsedData.id];
-        console.log(userSocketId, '--userSocketId--');
         socket.to(userSocketId).emit(userClicked);
     });
 
@@ -205,9 +199,7 @@ io.on('connection', async (socket) => {
     const request_screen_share = binaryEvent('request_screen_share');
     socket.on(request_screen_share, (data) => {
         const stringData = binaryToString(data);
-        console.log(stringData);
         const parsedData = JSON.parse(stringData);
-        console.log(parsedData, '--parsedData--');
         const userSocketId = users[parsedData.partnerId][parsedData.id];
         const start_screen_share = binaryEvent('start_screen_share');
         socket.to(userSocketId).emit(start_screen_share);
@@ -215,42 +207,44 @@ io.on('connection', async (socket) => {
 
     const ice_candidate = binaryEvent('ice_candidate');
     socket.on(ice_candidate, (data) => {
-        if (data.id) {
-            const jsonString = binaryToString(data);
-            const obj = JSON.parse(jsonString);
-            const candidateString = JSON.parse(obj.candidate);
-            const binaryCandidate = stringToBinary(candidateString);
+        const jsonString = binaryToString(data);
+        const obj = JSON.parse(jsonString);
+        if (obj.id) {
+            const candidateString = obj.candidate;
+            const binaryCandidate = stringToBinary(JSON.stringify(candidateString));
+            const userSocket = users[obj.partnerKey][obj.id];
             const ice_candidate = binaryEvent('ice_candidate');
-            socket.to(obj.id).emit(ice_candidate, binaryCandidate);
+            socket.to(userSocket).emit(ice_candidate, binaryCandidate);
         }
         else {
+            const partnersocket = partners[obj.partneKey];
             const ice_candidate = binaryEvent('ice_candidate');
-            io.to(adminSocket).emit(ice_candidate, data);
+            io.to(partnersocket).emit(ice_candidate, data);
         }
     });
 
     const sendOffer = binaryEvent('sendOffer');
-    socket.on(sendOffer, (offer) => {
-        socket.to(adminSocket).emit(sendOffer, offer);
+    socket.on(sendOffer, (offer, partnerKey) => {
+        const partnerID = binaryToString(partnerKey);
+        const partnerSocket = partners[partnerID];
+        socket.to(partnerSocket).emit(sendOffer, offer);
     });
 
     const sendAnswer = binaryEvent('sendAnswer');
-    socket.on(sendAnswer, (answer, id) => {
-        const idString = binaryToString(id);
-        const parsedId = JSON.parse(idString);
-
-        const userSocketId = userSocket[parsedId];
+    socket.on(sendAnswer, (answer, id, partnerKey) => {
+        const userId = binaryToString(id);
+        const partnerId = binaryToString(partnerKey);
+        const userSocketId = users[partnerId][userId];
+        screenShare[userId] = 1;
+        console.log(screenShare);
         socket.to(userSocketId).emit(sendAnswer, answer);
     });
 
     const sentDataChunk = binaryEvent('sentDataChunk');
     socket.on(sentDataChunk, (chunk, index, totalChunk, partnerKey) => {
         const partnerId = binaryToString(partnerKey);
-        console.log(partnerId, '--partnerId--');
         const partnerSocketId = partners[partnerId];
         const sendChunkData = binaryEvent('sendChunkData');
-        console.log(partners, '--partners--');
-        console.log(partnerSocketId, '--partnerSocketId--');
         socket.to(partnerSocketId).emit(sendChunkData, chunk, index, totalChunk);
     });
 
@@ -276,13 +270,17 @@ io.on('connection', async (socket) => {
     });
 
     const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
-    socket.on(stoppedScreenSharing, () => {
-        socket.to(adminSocket).emit(stoppedScreenSharing);
+    socket.on(stoppedScreenSharing, (partnerKey) => {
+        const partnerId = binaryToString(partnerKey);
+        const partnerSocket = partners[partnerId];
+        socket.to(partnerSocket).emit(stoppedScreenSharing);
     });
 
     const deniedScreenSharing = binaryEvent('deniedScreenSharing');
-    socket.on(deniedScreenSharing, () => {
-        socket.to(adminSocket).emit(deniedScreenSharing);
+    socket.on(deniedScreenSharing, (partnerKey) => {
+        const partnerId = binaryToString(partnerKey);
+        const partnerSocket = partners[partnerId];
+        socket.to(partnerSocket).emit(deniedScreenSharing);
     });
 
     const sendUserSubscription = binaryEvent('sendUserSubscription');
@@ -297,8 +295,7 @@ io.on('connection', async (socket) => {
             const userName = binaryToString(binaryName);
             // let existSubscription = connection.query(`select 
             const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, subscriptionEndpoint, binarySubscriptionKey.keys, expiredTime, userName]);
-            console.log(data.rows);
-            
+
         } catch (err) {
             console.log(err);
 
@@ -325,29 +322,69 @@ io.on('connection', async (socket) => {
     });
 
     socket.on('disconnect', async () => {
-        const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
-        socket.to(adminSocket).emit(stoppedScreenSharing);
+
+        const findPartnerId = (obj, value) => {
+            for (const [outerKey, innerObject] of Object.entries(obj)) {
+                for (const innerValue of Object.values(innerObject)) {
+                    if (innerValue === value) {
+                        return outerKey;
+                    }
+                }
+            }
+            return null;  // Return null if value is not found
+        };
+
+        const partnerId = findPartnerId(users, socket.id);
+
+        const adminSocket = partners[partnerId];
+
+        // Function to find the key using the targetValue
+        function findKeyByValue(users, targetValue) {
+            let targetKey = null;
+
+            // Loop through the object to find the key for the given value
+            for (const userId in users) {
+                const sockets = users[userId];
+                for (const key in sockets) {
+                    if (sockets[key] === targetValue) {
+                        targetKey = key;
+                        break;
+                    }
+                }
+                if (targetKey) break;  // Stop if the key is found
+            }
+
+            return targetKey;
+        }
+
+        // Call the function and log the result
+        const foundKey = findKeyByValue(users, socket.id);
+        console.log(screenShare,'--screenShare--');
+        if (screenShare[foundKey] === 1) {
+            screenShare[foundKey] = 0;
+            const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
+            socket.to(adminSocket).emit(stoppedScreenSharing);
+        }
+        console.log(screenShare);
 
         const connection = new Client(config);
         try {
-            let offlineId = Object.keys(userSocket).filter(key => userSocket[key] === socket.id)[0];
-
-            if (offlineId) {
+            if (foundKey) {
                 await connection.connect();
-                const falseStatus = await connection.query(`select ss_user_logout($1)`, [offlineId]);
+                const falseStatus = await connection.query(`select ss_user_logout($1)`, [foundKey]);
                 await connection.end();
 
-                delete userSocket[offlineId];
-                const activeUsers = Object.keys(userSocket).length;
-                const data = { activeUsers, userId: offlineId }
+                delete users[partnerId][foundKey];
+                const activeUsers = Object.keys(users[partnerId]).length;
+                const data = { activeUsers, userId: foundKey }
                 const jsonstring = JSON.stringify(data);
 
                 const binaryCode = stringToBinary(jsonstring);
                 const userLogout = binaryEvent('userLogout');
                 socket.to(adminSocket).emit(userLogout, (binaryCode));
             }
-            for (const userId in userSocket) {
-                if (userSocket[userId] === socket.id) {
+            for (const userId in users[partnerId]) {
+                if (users[partnerId][userId] === socket.id) {
                     const userLogout = binaryEvent('userLogout');
                     const data = {
                         userId
@@ -358,7 +395,7 @@ io.on('connection', async (socket) => {
                     const binaryCode = stringToBinary(jsonString);
 
                     socket.to(adminSocket).emit(userLogout, (binaryCode));
-                    delete userSocket[userId];
+                    delete users[partnerId][userId];
                     break;
                 }
             }

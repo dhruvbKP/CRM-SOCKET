@@ -20,6 +20,7 @@ const notificationForm = document.getElementById('notificationForm');
 const currentUsers = document.getElementsByClassName('userName');
 const currentUserLi = document.getElementsByClassName('active');
 const onSiteNotification = document.getElementById('onSiteNotification');
+const closeScreenShot = document.getElementById('closeScreenShot');
 
 span.onclick = function () {
     notificationModel.style.display = "none";
@@ -90,7 +91,6 @@ userCheckBox.forEach(checkbox => {
         else {
             usersubscriptionIds = usersubscriptionIds.filter(item => item !== checkbox.value);
         }
-        console.log(usersubscriptionIds);
     });
 });
 
@@ -107,7 +107,6 @@ selectAllCheckBox.addEventListener('change', () => {
         else {
             usersubscriptionIds = usersubscriptionIds.filter(item => item !== checkbox.value);
         }
-        console.log(usersubscriptionIds);
     });
 });
 
@@ -142,7 +141,6 @@ currentUserCheckBox.forEach(checkbox => {
         }
 
         updateNotificationDisplay();
-        console.log(userOnsiteNotifyIds);
     });
 });
 
@@ -174,8 +172,6 @@ selectAllCurrentUser.addEventListener('change', () => {
             userOnsiteNotifyIds = userOnsiteNotifyIds.filter(item => item !== checkbox.value);
         }
     });
-
-    console.log(userOnsiteNotifyIds);
 });
 
 pushForm.addEventListener('submit', async (e) => {
@@ -273,7 +269,6 @@ socket.on('connect', async () => {
                 }
 
                 updateNotificationDisplay();
-                console.log(userOnsiteNotifyIds);
             });
         });
     });
@@ -326,7 +321,6 @@ socket.on('connect', async () => {
 
     document.getElementById('sendNotification').addEventListener('click', (e) => {
         e.preventDefault();
-        console.log(userOnsiteNotifyIds);
 
         const formData = new FormData(notificationForm);
         const notificationTitle = formData.get('notificationTitle');
@@ -372,7 +366,8 @@ socket.on('connect', async () => {
                 const ice_candidate = binaryEvent('ice_candidate');
                 const data = {
                     candidate: event.candidate,
-                    id: userId
+                    id: userId,
+                    partnerKey: partnerKey
                 };
                 const jsonString = JSON.stringify(data);
                 const binaryData = stringToBinary(jsonString);
@@ -400,8 +395,9 @@ socket.on('connect', async () => {
         const string = JSON.stringify(answer);
         const binaryAnswer = stringToBinary(string);
         const id = stringToBinary(userId);
+        const partnerID = stringToBinary(partnerKey);
         const sendAnswer = binaryEvent('sendAnswer');
-        socket.emit(sendAnswer, binaryAnswer, id);
+        socket.emit(sendAnswer, binaryAnswer, id, partnerID);
     });
 
     const ice_candidate = binaryEvent('ice_candidate');
@@ -530,10 +526,16 @@ socket.on('connect', async () => {
             div.setAttribute('id', "screen_shot");
             ssDiv.style.display = 'block';
             ssDiv.appendChild(div);
+            closeScreenShot.style.display = 'block';
 
             receivedChunks = [];
             totalChunksExpected = 0;
         }
+    });
+
+    closeScreenShot.addEventListener('click', () => {
+        ssDiv.style.display = 'none';
+        closeScreenShot.style.display = 'none';
     });
 
     // const sentscreenSharing = binaryEvent('sentscreenSharing');
@@ -614,12 +616,14 @@ socket.on('connect', async () => {
 
     const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
     socket.on(stoppedScreenSharing, () => {
-        Notification.requestPermission().then(perm => {
-            if (perm === 'granted') {
-                new Notification("Screen sharing stopped");
-            }
-        });
-        videoElement.remove();
+        if (videoElement.srcObject) {
+            Notification.requestPermission().then(perm => {
+                if (perm === 'granted') {
+                    new Notification("Screen sharing stopped");
+                }
+            });
+            videoElement.remove();
+        }
     });
 
     const deniedScreenSharing = binaryEvent('deniedScreenSharing');

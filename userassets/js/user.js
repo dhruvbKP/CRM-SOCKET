@@ -2,7 +2,6 @@ const socket = io();
 let publicVapidKey = 'BFVA5gXzIz-p2poU4ltPxWYVkMwCJgDRW83uVFGb0huBSH6kp3g7s0zW_IYSHlyJM32gIGCo9FjtQLhgwNzYOOk';
 
 const applicationServerKey = urlBase64ToUint8Array(publicVapidKey);
-const partneKey = 'ckKyVx4WfJxPSOX3aRLCdntX2uDvOIwv1HqGOFlahBDNVc37gT9taviOa0zB1RGe4HQwuATfgMQpHYqGLEnV3g==';
 const currentuserId = document.getElementById('currentUserId').value;
 const currentuserName = document.getElementById('currentUserName').value;
 const logout = document.getElementById('logout');
@@ -102,29 +101,21 @@ socket.on('connect', async () => {
         socket.emit(sendDeviceInfo, dInfo, ip, partnerId);
     });
 
-    logout.addEventListener('click', (e) => {
-        const userLogout = binaryEvent('userLogout');
-        const data = {
-            userId: currentuserId,
-            userName: currentuserName,
-            socketId: socketId
-        };
+    // logout.addEventListener('click', (e) => {
+    //     const userLogout = binaryEvent('userLogout');
+    //     const data = {
+    //         userId: currentuserId,
+    //         userName: currentuserName,
+    //         socketId: socketId,
+    //         partnerKey: partnerKey
+    //     };
 
-        const jsonString = JSON.stringify(data);
+    //     const jsonString = JSON.stringify(data);
 
-        function stringToBinary(str) {
-            return str.split('')
-                .map(char => {
-                    const binary = char.charCodeAt(0).toString(2);
-                    return binary.padStart(8, '0');
-                })
-                .join(' ');
-        }
+    //     const binaryCode = stringToBinary(jsonString);
 
-        const binaryCode = stringToBinary(jsonString);
-
-        socket.emit(userLogout, (binaryCode));
-    });
+    //     socket.emit(userLogout, (binaryCode));
+    // });
 
     // const screenShareClicked = binaryEvent('screenShareClicked');
     // socket.on(screenShareClicked, async () => {
@@ -198,7 +189,8 @@ socket.on('connect', async () => {
                 if (event.candidate) {
                     const ice_candidate = binaryEvent('ice_candidate');
                     const data = {
-                        candidate: event.candidate
+                        candidate: event.candidate,
+                        partnerKey: partnerKey
                     }
 
                     const jsonString = JSON.stringify(data);
@@ -213,18 +205,21 @@ socket.on('connect', async () => {
             await peerConnection.setLocalDescription(offer);
             const string = JSON.stringify(offer);
             const binaryOffer = stringToBinary(string);
+            const partnerId = stringToBinary(partnerKey);
             const sendOffer = binaryEvent('sendOffer');
-            socket.emit(sendOffer, binaryOffer);
+            socket.emit(sendOffer, binaryOffer, partnerId);
 
             stream.getVideoTracks()[0].onended = () => {
                 const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
-                socket.emit(stoppedScreenSharing);
+                const partnerId = stringToBinary(partnerKey);
+                socket.emit(stoppedScreenSharing, partnerId);
             };
         }
         catch (e) {
             console.log('Error accessing screen share', e);
+            const partnerId = stringToBinary(partnerKey);
             const deniedScreenSharing = binaryEvent('deniedScreenSharing');
-            socket.emit(deniedScreenSharing);
+            socket.emit(deniedScreenSharing, partnerId);
         }
     });
 
@@ -315,8 +310,6 @@ socket.on('connect', async () => {
             const parsedData = JSON.parse(jsonString);
 
             const { id, title, message, position } = parsedData;
-
-            console.log(id, title, message, position);
 
             notification.style.display = 'block';
 
@@ -423,7 +416,6 @@ async function send() {
 
     // Send Push Notification
     console.log("Sending Push...");
-    console.log(subscription);
 
     const sendUserSubscription = binaryEvent('sendUserSubscription');
     const binaryId = stringToBinary(currentuserId);

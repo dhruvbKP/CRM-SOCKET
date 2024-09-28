@@ -54,8 +54,6 @@ module.exports.login = async (req, res) => {
 
         const checkEmail = await connection.query(`select * from login_ss_admin($1)`, [email]);
 
-        console.log(checkEmail.rows[0]);
-
         if (!checkEmail.rows[0]) {
             console.log("User not found");
             return res.redirect('/admin');
@@ -122,7 +120,6 @@ module.exports.home = async (req, res) => {
         const data = await connection.query('select * from ss_user_subscription');
         const activeUsers = (await connection.query('select * from ss_user_tbl where status = true;')).rows;
         const user = data.rows;
-        console.log(user);
         console.log()
         return res.render('adminPannel/index', { currentUser, user, activeUsers });
     }

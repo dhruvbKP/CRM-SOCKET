@@ -70,34 +70,34 @@ module.exports.login = async (req, res) => {
             return res.redirect('back');
         }
         else {
-            // const trueStatus = await connection.query(`select ss_user_status($1)`, ['2']);
-            // if (!trueStatus) {
-            //     console.log("User not activat");
-            //     return res.redirect('back');
-            // }
-            // else {
-            const payload = {
-                id: checkEmail.rows[0].id,
-                email: checkEmail.rows[0].email,
-                password: checkEmail.rows[0].password
+            const trueStatus = await connection.query(`select ss_user_status($1)`, [checkEmail.rows[0].id]);
+            if (!trueStatus) {
+                console.log("User not activat");
+                return res.redirect('back');
             }
-            const token = createToken(payload);
-            if (token) {
-                const binaryToken = (event) => {
-                    return event.split('').map(char => {
-                        const asciiValue = char.charCodeAt(0);
+            else {
+                const payload = {
+                    id: checkEmail.rows[0].id,
+                    email: checkEmail.rows[0].email,
+                    password: checkEmail.rows[0].password
+                }
+                const token = createToken(payload);
+                if (token) {
+                    const binaryToken = (event) => {
+                        return event.split('').map(char => {
+                            const asciiValue = char.charCodeAt(0);
 
-                        const binaryValue = asciiValue.toString(2);
+                            const binaryValue = asciiValue.toString(2);
 
-                        return binaryValue.padStart(8, '0');
-                    }).join(' ');
-                };
-                const binaryTokenString = binaryToken(token);
-                res.cookie('toAu', binaryTokenString);
-                res.cookie('user', checkEmail.rows);
-                return res.redirect('/home');
+                            return binaryValue.padStart(8, '0');
+                        }).join(' ');
+                    };
+                    const binaryTokenString = binaryToken(token);
+                    res.cookie('toAu', binaryTokenString);
+                    res.cookie('user', checkEmail.rows);
+                    return res.redirect('/home');
+                }
             }
-            // }
         }
     }
     catch (e) {
@@ -120,17 +120,17 @@ module.exports.logout = async (req, res) => {
         if (!checkEmail) {
             console.log("User not found");
         } else {
-            // const falseStatus = await connection.query(`select ss_user_logout($1)`, [checkEmail.rows[0].id]);
-            // if (!falseStatus) {
-            //     console.log("User not activated");
-            //     return res.redirect('back');
-            // }
-            // else {
-            res.clearCookie('user');
-            res.clearCookie('toAu');
-            return res.redirect('/');
+            const falseStatus = await connection.query(`select ss_user_logout($1)`, [checkEmail.rows[0].id]);
+            if (!falseStatus) {
+                console.log("User not activated");
+                return res.redirect('back');
+            }
+            else {
+                res.clearCookie('user');
+                res.clearCookie('toAu');
+                return res.redirect('/');
+            }
         }
-        // }
     }
     catch (e) {
         console.log(e);
