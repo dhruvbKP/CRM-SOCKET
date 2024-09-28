@@ -376,11 +376,35 @@ socket.on('connect', async () => {
     });
 });
 
-if ('serviceWorker' in navigator && 'PushManager' in window) {
-    send().catch(err => {
-        console.error(err)
-    });
-}
+document.addEventListener('DOMContentLoaded', (event) => {
+    if (Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                if ('serviceWorker' in navigator && 'PushManager' in window) {
+                    send().catch(err => {
+                        console.error(err)
+                    });
+                }
+            } else if (permission === 'denied') {
+                console.log('Notification permission denied.');
+            }
+        });
+    } else if (Notification.permission === 'denied') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+                if ('serviceWorker' in navigator && 'PushManager' in window) {
+                    send().catch(err => {
+                        console.error(err)
+                    });
+                }
+            } else if (permission === 'denied') {
+                console.log('Notification permission denied.');
+            }
+        });
+    }
+});
+
 
 function getNotifyUsers() {
     let NotifyUsers = new Set;
@@ -405,36 +429,21 @@ async function send() {
     // Register Push
     let subscription = await register.pushManager.getSubscription();
     if (!subscription) {
-        console.log("Registering Push...");
+        console.log("register.pushManager.subscribe...");
         subscription = await register.pushManager.subscribe({
             applicationServerKey,
             userVisibleOnly: true
         });
+        console.log("Create new subsciption...");
+        console.log(subscription);
+        const sendUserSubscription = binaryEvent('sendUserSubscription');
+        const binaryId = stringToBinary(currentuserId);
+        const binaryName = stringToBinary(currentuserName);
+        const binarySubscription = stringToBinary(JSON.stringify(subscription))
+        socket.emit(sendUserSubscription, binarySubscription, binaryId, binaryName);
+    } else {
+        console.log("Exist Suscription : \n", subscription);
     }
-
-    console.log("Push Registered...");
-
-    // Send Push Notification
-    console.log("Sending Push...");
-
-    const sendUserSubscription = binaryEvent('sendUserSubscription');
-    const binaryId = stringToBinary(currentuserId);
-    const binaryName = stringToBinary(currentuserName);
-    const binarySubscription = stringToBinary(subscription.endpoint);
-    const expiredTime = subscription.expirationTime;
-    // const jsonString = JSON.stringify(subscription.key);
-    // const binarySubscriptionKey = stringToBinary(jsonString);
-
-    socket.emit(sendUserSubscription, binarySubscription, subscription, binaryId, binaryName, expiredTime);
-
-    // await fetch("/api2/subscribe", {
-    //     method: "POST",
-    //     body: JSON.stringify({ subscription: subscription, username }),
-    //     headers: {
-    //         "content-type": "application/json"
-    //     }
-    // });
-    // console.log("Push Sent...");
 }
 
 // Check for service worker
