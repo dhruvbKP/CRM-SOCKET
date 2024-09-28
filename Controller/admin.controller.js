@@ -134,7 +134,7 @@ module.exports.home = async (req, res) => {
         await connection.end();
     }
 };
- 
+
 module.exports.notify = async (req, res) => {
     const connection = new Client(config);
     try {
@@ -151,22 +151,23 @@ module.exports.notify = async (req, res) => {
                 { action: "dismiss", title: "Dismiss" }
             ]
         });
-        let subscriptions = [];
+        let subscriptionsAlluser = [];
         for (let id of ids) {
-            let x = await connection.query(`select * from ss_user_subscription where t_id = ${id}`);
-            subscriptions.push(x.rows[0]);
+            let x = await connection.query(`select subscription from ss_user_subscription where t_id = ${id}`);
+            subscriptionsAlluser.push(x.rows[0].subscription)
         }
 
         // Use a regular for...of loop to await each sendNotification call
-        for (let subscription of subscriptions) {
-            try {
-                // console.log('Subscription ID:', subscription.id);
-                await webPush.sendNotification(subscription, payload);
-            } catch (error) {
-                console.error('Error sending notification', error);
+        for (let users of subscriptionsAlluser) {
+            for (let subscription of users) {
+                try {
+                    // console.log('Subscription ID:', subscription.id);
+                    await webPush.sendNotification(subscription, payload);
+                } catch (error) {
+                    console.error('Error sending notification', error);
+                }
             }
         }
-
         res.status(200).json({});
     } catch (error) {
         res.status(500).json({ error: error.message });

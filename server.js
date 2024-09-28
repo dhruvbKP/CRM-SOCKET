@@ -286,19 +286,24 @@ io.on('connection', async (socket) => {
     });
 
     const sendUserSubscription = binaryEvent('sendUserSubscription');
-    socket.on(sendUserSubscription, async (binarySubscription, binarySubscriptionKey, binaryId, binaryName, expiredTime) => {
+    socket.on(sendUserSubscription, async (binarySubscription, binaryId, binaryName) => {
         const connection = new Client(config);
         try {
             await connection.connect();
-            // const parsedSubscriptionKey = JSON.parse(binarySubscriptionKey);
-            // const subscriptionKey = binaryToString(parsedSubscriptionKey);
-            const subscriptionEndpoint = binaryToString(binarySubscription);
+            const binarySubscriptionObj = binaryToString(binarySubscription);
             const userId = binaryToString(binaryId);
             const userName = binaryToString(binaryName);
-            // let existSubscription = connection.query(`select 
-            const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, subscriptionEndpoint, binarySubscriptionKey.keys, expiredTime, userName]);
+            let array = []
+            let existSubscription = await connection.query(`select subscription from  public.ss_user_subscription where userId = ${userId};`)
+            if (existSubscription.rows[0]) {
+                existSubscription.rows[0].subscription.forEach((x) => {
+                    array.push(x)
+                })
+            }
+            array.push(JSON.parse(binarySubscriptionObj))
+            const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3)`, [userId, JSON.stringify(array), userName]);
             console.log(data.rows);
-            
+
         } catch (err) {
             console.log(err);
 
