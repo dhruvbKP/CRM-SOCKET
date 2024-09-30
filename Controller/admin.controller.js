@@ -117,7 +117,7 @@ module.exports.home = async (req, res) => {
     try {
         await connection.connect();
         const currentUser = req.cookies.user;
-        const data = await connection.query('select * from ss_user_subscription');
+        const data = await connection.query('select * from public.ss_user_tbl');
         const activeUsers = (await connection.query('select * from ss_user_tbl where status = true;')).rows;
         const user = data.rows;
         console.log()
@@ -150,18 +150,25 @@ module.exports.notify = async (req, res) => {
         });
         let subscriptionsAlluser = [];
         for (let id of ids) {
-            let x = await connection.query(`select subscription from ss_user_subscription where t_id = ${id}`);
-            subscriptionsAlluser.push(x.rows[0].subscription)
+            let x = await connection.query(`select endpoint, expirationTime, keys from ss_user_subscription where userid = ${id}`);
+            x.rows.forEach(x => {
+                subscriptionsAlluser.push(x)
+            })
         }
 
         // Use a regular for...of loop to await each sendNotification call
-        for (let users of subscriptionsAlluser) {
-            for (let subscription of users) {
-                try {
-                    // console.log('Subscription ID:', subscription.id);
-                    await webPush.sendNotification(subscription, payload);
-                } catch (error) {
-                    console.error('Error sending notification', error);
+        for (let subscription of subscriptionsAlluser) {
+            try {
+                // console.log('Subscription ID:', subscription.id);
+                await webPush.sendNotification(subscription, payload);
+            } catch (error) {
+                if (error.statusCode === 410) {
+                    await connection.query(
+                        'DELETE FROM public.ss_user_subscription WHERE endpoint = $1', 
+                        [subscription.endpoint]
+                    );
+                } else {
+                    console.error('Error sending notification:', error);
                 }
             }
         }

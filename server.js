@@ -289,22 +289,15 @@ io.on('connection', async (socket) => {
         try {
             await connection.connect();
             const binarySubscriptionObj = binaryToString(binarySubscription);
+            let parseSubscription = JSON.parse(binarySubscriptionObj)
+            let keys = JSON.stringify(parseSubscription.keys);
             const userId = binaryToString(binaryId);
             const userName = binaryToString(binaryName);
-            let array = []
-            let existSubscription = await connection.query(`select subscription from  public.ss_user_subscription where userId = ${userId};`)
-            if (existSubscription.rows[0]) {
-                existSubscription.rows[0].subscription.forEach((x) => {
-                    array.push(x)
-                })
-            }
-            array.push(JSON.parse(binarySubscriptionObj))
-            const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3)`, [userId, JSON.stringify(array), userName]);
+            const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys, userName]);
             console.log(data.rows);
 
         } catch (err) {
             console.log(err);
-
         } finally {
             await connection.end();
         }
@@ -314,7 +307,7 @@ io.on('connection', async (socket) => {
     socket.on(sendNotification, (data) => {
         const obj = binaryToString(data);
 
-        const parsedData = JSON.parse(obj); 
+        const parsedData = JSON.parse(obj);
 
         const jsonString = JSON.stringify(parsedData);
 
@@ -365,7 +358,7 @@ io.on('connection', async (socket) => {
 
         // Call the function and log the result
         const foundKey = findKeyByValue(users, socket.id);
-        console.log(screenShare,'--screenShare--');
+        console.log(screenShare, '--screenShare--');
         if (screenShare[foundKey] === 1) {
             screenShare[foundKey] = 0;
             const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
