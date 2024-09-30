@@ -56,8 +56,14 @@ const demo = (id) => {
             clearInterval(intervalLocation);
             map.style.display = 'none';
         }
+        if(closeButton.style.display = 'block'){
+            closeButton.style.display = 'none';
+        }
     } else {
         dataModel.style.display = dataModel.style.display === 'flex' ? 'none' : 'flex';
+        if(closeButton.style.display = 'block'){
+            closeButton.style.display = 'none';
+        }
     }
 
     infoDiv.style.display = 'none';
@@ -233,11 +239,13 @@ socket.on('connect', async () => {
     const adminConnected = binaryEvent('adminConnected');
     socket.emit(adminConnected, binaryData);
 
+    let activeUsers = 0;
     const userData = binaryEvent('userData');
     socket.on(userData, async (data) => {
+        activeUsers++;
         const jsonstring = binaryToString(data);
         const obj = JSON.parse(jsonstring);
-        h5.innerHTML = obj.activeUsers;
+        h5.innerHTML = activeUsers;
         if (document.getElementById(obj.userId)) return;
         ul.innerHTML += await `<li class="active has-sub" id="${obj.userId}"
                                 style="margin-bottom: 20px;">
@@ -486,6 +494,9 @@ socket.on('connect', async () => {
     const userLogout = binaryEvent('userLogout');
     socket.on(userLogout, (data) => {
 
+        // activeUsers--;
+        // h5.innerHTML = activeUsers;
+
         const jsonstring = binaryToString(data);
 
         const obj = JSON.parse(jsonstring);
@@ -545,7 +556,9 @@ socket.on('connect', async () => {
         ssDiv.style.display = 'none';
         infoDiv.style.display = 'none';
         map.style.display = 'none';
-        clearInterval(intervalLocation);
+        if(intervalLocation){
+            clearInterval(intervalLocation);
+        }
         closeButton.style.display = 'none';
     });
 

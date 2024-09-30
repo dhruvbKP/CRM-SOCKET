@@ -1,12 +1,8 @@
 const bcrypt = require('bcrypt');
 const { Client } = require('pg');
-const EventEmitter = require('events');
 
 const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
-
-
-const eventEmitter = new EventEmitter();
 
 module.exports.registerpage = (req, res) => {
     return res.render('registration');

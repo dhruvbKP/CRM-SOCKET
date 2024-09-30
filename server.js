@@ -334,11 +334,9 @@ io.on('connection', async (socket) => {
 
         const adminSocket = partners[partnerId];
 
-        // Function to find the key using the targetValue
         function findKeyByValue(users, targetValue) {
             let targetKey = null;
 
-            // Loop through the object to find the key for the given value
             for (const userId in users) {
                 const sockets = users[userId];
                 for (const key in sockets) {
@@ -347,7 +345,7 @@ io.on('connection', async (socket) => {
                         break;
                     }
                 }
-                if (targetKey) break;  // Stop if the key is found
+                if (targetKey) break;
             }
 
             return targetKey;
