@@ -314,7 +314,7 @@ io.on('connection', async (socket) => {
     socket.on(sendNotification, (data) => {
         const obj = binaryToString(data);
 
-        const parsedData = JSON.parse(obj); ``
+        const parsedData = JSON.parse(obj); 
 
         const jsonString = JSON.stringify(parsedData);
 

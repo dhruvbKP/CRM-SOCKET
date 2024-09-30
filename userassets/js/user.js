@@ -281,7 +281,7 @@ socket.on('connect', async () => {
                 const index = stringToBinary(indexString);
                 const totalChunk = stringToBinary(totalChunksString);
 
-                const partnerId = stringToBinary(partnerKey)
+                const partnerId = stringToBinary(partnerKey);
 
                 socket.emit(sentDataChunk, chunk, index, totalChunk, partnerId);
             };
