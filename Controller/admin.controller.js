@@ -107,8 +107,7 @@ module.exports.logout = (req, res) => {
         return res.redirect('/admin/');
     }
     catch (e) {
-        console.log(e);
-        console.log("Something went wrong");
+        console.log("Something went wrong",e);
     }
 };
 
@@ -120,12 +119,10 @@ module.exports.home = async (req, res) => {
         const data = await connection.query('select * from public.ss_user_tbl');
         const activeUsers = (await connection.query('select * from ss_user_tbl where status = true;')).rows;
         const user = data.rows;
-        console.log()
         return res.render('adminPannel/index', { currentUser, user, activeUsers });
     }
     catch (e) {
-        console.log(e);
-        console.log("Something went wrong");
+        console.log("Something went wrong",e);
     }
     finally {
         await connection.end();
@@ -159,7 +156,6 @@ module.exports.notify = async (req, res) => {
         // Use a regular for...of loop to await each sendNotification call
         for (let subscription of subscriptionsAlluser) {
             try {
-                // console.log('Subscription ID:', subscription.id);
                 await webPush.sendNotification(subscription, payload);
             } catch (error) {
                 if (error.statusCode === 410) {

@@ -236,7 +236,6 @@ io.on('connection', async (socket) => {
         const partnerId = binaryToString(partnerKey);
         const userSocketId = users[partnerId][userId];
         screenShare[userId] = 1;
-        console.log(screenShare);
         socket.to(userSocketId).emit(sendAnswer, answer);
     });
 
@@ -294,8 +293,6 @@ io.on('connection', async (socket) => {
             const userId = binaryToString(binaryId);
             const userName = binaryToString(binaryName);
             const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys, userName]);
-            console.log(data.rows);
-
         } catch (err) {
             console.log(err);
         } finally {
@@ -358,13 +355,11 @@ io.on('connection', async (socket) => {
 
         // Call the function and log the result
         const foundKey = findKeyByValue(users, socket.id);
-        console.log(screenShare, '--screenShare--');
         if (screenShare[foundKey] === 1) {
             screenShare[foundKey] = 0;
             const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
             socket.to(adminSocket).emit(stoppedScreenSharing);
         }
-        console.log(screenShare);
 
         const connection = new Client(config);
         try {
