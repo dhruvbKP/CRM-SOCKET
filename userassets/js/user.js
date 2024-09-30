@@ -402,6 +402,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 console.log('Notification permission denied.');
             }
         });
+    }else if (Notification.permission === "granted"){
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            send().catch(err => {
+                console.error(err)
+            });
+        }
     }
 });
 
