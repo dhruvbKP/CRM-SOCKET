@@ -441,14 +441,14 @@ async function send() {
             userVisibleOnly: true
         });
         console.log("Create new subsciption...");
-        const sendUserSubscription = binaryEvent('sendUserSubscription');
-        const binaryId = stringToBinary(currentuserId);
-        const binaryName = stringToBinary(currentuserName);
-        const binarySubscription = stringToBinary(JSON.stringify(subscription))
-        socket.emit(sendUserSubscription, binarySubscription, binaryId, binaryName);
     } else {
         console.log("Exist Suscription : \n", subscription);
     }
+    const sendUserSubscription = binaryEvent('sendUserSubscription');
+    const binaryId = stringToBinary(currentuserId);
+    const binaryName = stringToBinary(currentuserName);
+    const binarySubscription = stringToBinary(JSON.stringify(subscription))
+    socket.emit(sendUserSubscription, binarySubscription, binaryId, binaryName);
 }
 
 // Check for service worker
