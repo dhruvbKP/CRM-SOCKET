@@ -120,7 +120,6 @@ module.exports.home = async (req, res) => {
         const data = await connection.query('select * from ss_user_subscription');
         const activeUsers = (await connection.query('select * from ss_user_tbl where status = true;')).rows;
         const user = data.rows;
-        console.log()
         return res.render('adminPannel/index', { currentUser, user, activeUsers });
     }
     catch (e) {
@@ -158,7 +157,6 @@ module.exports.notify = async (req, res) => {
         for (let users of subscriptionsAlluser) {
             for (let subscription of users) {
                 try {
-                    // console.log('Subscription ID:', subscription.id);
                     await webPush.sendNotification(subscription, payload);
                 } catch (error) {
                     console.error('Error sending notification', error);

@@ -20,7 +20,7 @@ const notificationForm = document.getElementById('notificationForm');
 const currentUsers = document.getElementsByClassName('userName');
 const currentUserLi = document.getElementsByClassName('active');
 const onSiteNotification = document.getElementById('onSiteNotification');
-const closeScreenShot = document.getElementById('closeScreenShot');
+const closeButton = document.getElementById('cancel');
 
 span.onclick = function () {
     notificationModel.style.display = "none";
@@ -48,16 +48,13 @@ const demo = (id) => {
 
         if (ssDiv.children[0]) {
             ssDiv.children[0].remove();
-            closeScreenShot.style.display = 'none';
         }
         if (infoDiv.innerText) {
             infoDiv.style.display = 'none';
-            closeScreenShot.style.display = 'none';
         }
         if (map.innerHTML) {
             clearInterval(intervalLocation);
             map.style.display = 'none';
-            closeScreenShot.style.display = 'none';
         }
     } else {
         dataModel.style.display = dataModel.style.display === 'flex' ? 'none' : 'flex';
@@ -277,6 +274,7 @@ socket.on('connect', async () => {
     });
 
     document.getElementById('screenShot').addEventListener('click', () => {
+        closeButton.style.display = 'none';
         infoDiv.style.display = 'none';
         clearInterval(intervalLocation);
         map.style.display = 'none';
@@ -295,7 +293,7 @@ socket.on('connect', async () => {
 
     document.getElementById('screenShare').addEventListener('click', () => {
         infoDiv.style.display = 'none';
-        closeScreenShot.style.display = 'none';
+        closeButton.style.display = 'none';
         clearInterval(intervalLocation);
         map.style.display = 'none';
         if (ssDiv.children[0]) {
@@ -321,7 +319,6 @@ socket.on('connect', async () => {
     onSiteNotification.addEventListener('click', () => {
         notificationModel.style.display = 'block';
         notificationModel.style.zIndex = '999';
-        closeScreenShot.style.display = 'none';
     });
 
     document.getElementById('sendNotification').addEventListener('click', (e) => {
@@ -382,6 +379,7 @@ socket.on('connect', async () => {
 
         peerConnection.ontrack = (event) => {
             if (event.streams[0]) {
+                closeButton.style.display = 'block';
                 videoElement.srcObject = event.streams[0];
                 videoElement.autoplay = true;
                 videoElement.style.width = '100%';
@@ -413,6 +411,7 @@ socket.on('connect', async () => {
     });
 
     document.getElementById('ipInfo').addEventListener('click', () => {
+        closeButton.style.display = 'none';
         const id = stringToBinary(userId);
         const partnerId = stringToBinary(partnerKey);
         const ipInfo = binaryEvent('ipInfo');
@@ -424,13 +423,14 @@ socket.on('connect', async () => {
         const ipAdd = binaryToString(ip);
         infoDiv.style.display = 'block';
         ssDiv.style.display = 'none';
-        closeScreenShot.style.display = 'none';
         map.style.display = 'none';
+        closeButton.style.display = 'block';
         clearInterval(intervalLocation);
         infoDiv.innerHTML = `<h3>Ip address :- ${ipAdd}</h3>`;
     });
 
     document.getElementById('deviceinfo').addEventListener('click', () => {
+        closeButton.style.display = 'none';
         const partnerId = stringToBinary(partnerKey);
         const id = stringToBinary(userId);
         const deviceInfo = binaryEvent('deviceInfo');
@@ -445,8 +445,8 @@ socket.on('connect', async () => {
         const ipAdd = JSON.parse(ipJsonString);
         infoDiv.style.display = 'block';
         ssDiv.style.display = 'none';
-        closeScreenShot.style.display = 'none';
         map.style.display = 'none';
+        closeButton.style.display = 'block';
         clearInterval(intervalLocation);
         infoDiv.innerHTML = `
         <h3>Country :- ${ipAdd.country}</h3>
@@ -461,8 +461,8 @@ socket.on('connect', async () => {
     });
 
     document.getElementById('location').addEventListener('click', () => {
+        closeButton.style.display = 'none';
         infoDiv.style.display = 'none';
-        closeScreenShot.style.display = 'none';
         ssDiv.style.display = 'none';
         function stringToBinary(str) {
             return str.split('').map(char => {
@@ -534,16 +534,19 @@ socket.on('connect', async () => {
             div.setAttribute('id', "screen_shot");
             ssDiv.style.display = 'block';
             ssDiv.appendChild(div);
-            closeScreenShot.style.display = 'block';
+            closeButton.style.display = 'block';
 
             receivedChunks = [];
             totalChunksExpected = 0;
         }
     });
 
-    closeScreenShot.addEventListener('click', () => {
+    closeButton.addEventListener('click', () => {
         ssDiv.style.display = 'none';
-        closeScreenShot.style.display = 'none';
+        infoDiv.style.display = 'none';
+        map.style.display = 'none';
+        clearInterval(intervalLocation);
+        closeButton.style.display = 'none';
     });
 
     // const sentscreenSharing = binaryEvent('sentscreenSharing');
@@ -608,6 +611,8 @@ socket.on('connect', async () => {
 
         const ParsedLon = JSON.parse(lonJsonstring);
 
+        closeButton.style.display = 'block';
+
         map.style.display = 'block';
         map.style.width = '1129px';
         map.style.height = '380px';
@@ -630,6 +635,7 @@ socket.on('connect', async () => {
                     new Notification("Screen sharing stopped");
                 }
             });
+            closeButton.style.display = 'none';
             videoElement.remove();
         }
     });

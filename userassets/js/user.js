@@ -435,7 +435,6 @@ async function send() {
             userVisibleOnly: true
         });
         console.log("Create new subsciption...");
-        console.log(subscription);
         const sendUserSubscription = binaryEvent('sendUserSubscription');
         const binaryId = stringToBinary(currentuserId);
         const binaryName = stringToBinary(currentuserName);
