@@ -376,9 +376,9 @@ io.on('connection', async (socket) => {
                 let [partnerid, name, secretkey] = await decryptData(partnerId);
                 const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
                 const result = await connection.query(`
-                    update $1.register
+                    update ${schemaName}.register
                     set status = false
-                    where user_id = $2;`, [schemaName, userId]);
+                    where user_id = ${userId};`);
                 delete users[partnerId][userId];
                 const activeUsers = Object.keys(users[partnerId]).length;
                 const data = { activeUsers, userId: userId }
