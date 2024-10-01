@@ -19,11 +19,13 @@ module.exports.registration = async (req, res) => {
             console.log("Please fill the form");
         }
 
-        const { fname, lname, email, password } = req.body;
-        const name = fname + ' ' + lname;
-        const hashpassword = await bcrypt.hash(password, 10);
-        const data = await connection.query(`select insert_ss_admin($1,$2,$3)`, [name, email, hashpassword]);
-        if (data) {
+        const { name, secretkey, ipaddress, createdBy, modifiedBy } = req.body;
+        const created = parseInt(createdBy);
+        const modified = parseInt(modifiedBy);
+        const insertData = await connection.query(`
+            SELECT public.insert_partner($1, $2, $3, $4, $5)`,
+            [name, secretkey, ipaddress, created, modified]);
+        if (insertData) {
             return res.redirect('/admin');
         }
         else {
@@ -63,7 +65,7 @@ module.exports.login = async (req, res) => {
             return res.redirect('/admin');
         }
 
-        res.cookie('schemaName','partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase());
+        res.cookie('schemaName', 'partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase());
 
         console.log(schemaName);
 
@@ -93,7 +95,7 @@ module.exports.login = async (req, res) => {
             const binaryTokenString = binaryToken(token);
             res.cookie('toAu', binaryTokenString);
             res.cookie('user', checkEmail.rows);
-           
+
             return res.redirect('/admin/home');
         }
         else {
@@ -104,7 +106,7 @@ module.exports.login = async (req, res) => {
     catch (e) {
         console.log(e);
         return res.redirect('back');
-    }finally{
+    } finally {
         await connection.end();
     }
 };
