@@ -19,11 +19,13 @@ module.exports.registration = async (req, res) => {
             console.log("Please fill the form");
         }
 
-        const { fname, lname, email, password } = req.body;
-        const name = fname + ' ' + lname;
-        const hashpassword = await bcrypt.hash(password, 10);
-        const data = await connection.query(`select insert_ss_admin($1,$2,$3)`, [name, email, hashpassword]);
-        if (data) {
+        const { name, secretkey, ipaddress, createdBy, modifiedBy } = req.body;
+        const created = parseInt(createdBy);
+        const modified = parseInt(modifiedBy);
+        const insertData = await connection.query(`
+            SELECT public.insert_partner($1, $2, $3, $4, $5)`,
+            [name, secretkey, ipaddress, created, modified]);
+        if (insertData) {
             return res.redirect('/admin');
         }
         else {

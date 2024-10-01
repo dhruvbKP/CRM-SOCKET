@@ -2,21 +2,21 @@ const express = require('express');
 const { validateAdminToken } = require('../Config/token.js');
 const routes = express.Router();
 
-const adminCtrl = require('../Controller/admin.controller');
+const { home, login, loginPage, logout, notify, registration, registrationPage } = require('../Controller/admin.controller');
 
-routes.get('/', adminCtrl.loginPage);
+routes.get('/', loginPage);
 
-routes.post('/login', adminCtrl.login);
+routes.post('/login', login);
 
-routes.get('/logout', adminCtrl.logout);
+routes.get('/logout', logout);
 
-routes.get('/registrationPage', adminCtrl.registrationPage);
+routes.get('/registrationPage', registrationPage);
 
-routes.post('/registration', adminCtrl.registration);
+routes.post('/registration', registration);
 
-routes.get('/home', validateAdminToken, adminCtrl.home);
+routes.get('/home', validateAdminToken, home);
 
-routes.post('/notification', adminCtrl.notify);
+routes.post('/notification', notify);
 
 // routes.get('adminPannel/index',(req,res))
 
