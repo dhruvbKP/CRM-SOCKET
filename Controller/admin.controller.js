@@ -5,8 +5,6 @@ const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 const webPush = require('../Config/pushConfig.js');
 
-var schemaName;
-
 module.exports.registrationPage = (req, res) => {
     return res.render('adminPannel/registration');
 };
@@ -19,20 +17,22 @@ module.exports.registration = async (req, res) => {
             console.log("Please fill the form");
         }
 
-        const { fname, lname, email, password } = req.body;
-        const name = fname + ' ' + lname;
-        const hashpassword = await bcrypt.hash(password, 10);
-        const data = await connection.query(`select insert_ss_admin($1,$2,$3)`, [name, email, hashpassword]);
+        const { name, secretKey, ipaddress, createdBy, modifiedBy } = req.body;
+        console.log(secretKey);
+        const created = parseInt(createdBy);
+        const data = await connection.query(`
+            SELECT public.insert_partner($1, $2, $3, $4, $5)`,
+            [name, secretKey, ipaddress, created, modifiedBy]);
         if (data) {
             return res.redirect('/admin');
         }
         else {
-            return res.redirect('back');
+            return res.redirect('/admin/registrationPage');
         }
     }
     catch (e) {
         console.log(e);
-        return res.redirect('back');
+        return res.redirect('/admin/registrationPage');
     }
     finally {
         await connection.end();
@@ -63,9 +63,7 @@ module.exports.login = async (req, res) => {
             return res.redirect('/admin');
         }
 
-        schemaName = 'partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase();
-
-        console.log(schemaName);
+        res.cookie('schemaName', 'partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase());
 
         // const checkPass = await bcrypt.compare(password, checkEmail.rows[0].password);
 
@@ -125,7 +123,8 @@ module.exports.home = async (req, res) => {
     try {
         await connection.connect();
         const currentUser = req.cookies.user;
-        const data = await connection.query(`select DISTINCT user_id from ${schemaName}.push_subscription;`);
+        const schemaname = req.cookies.schemaName;
+        const data = await connection.query(`select DISTINCT user_id from ${schemaname}.push_subscription`);
         console.log(data.rows[0]);
         const activeUsers = (await connection.query(`select * from ${schemaName}.register where status = true;`)).rows;
         const user = data.rows;
