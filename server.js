@@ -8,6 +8,7 @@ const cp = require('cookie-parser');
 const { Server } = require('socket.io');
 const { config } = require('./Config/db');
 const bodyParser = require('body-parser');
+const { decryptData } = require('./keyDecrypt.js')
 
 dotenv.config();
 
@@ -107,11 +108,15 @@ io.on('connection', async (socket) => {
             if (!users[obj.partnerId]) {
                 users[obj.partnerId] = {};
             }
-
             users[obj.partnerId][obj.userId] = obj.socketId;
 
             // Query the database to check user status
-            const result = await connection.query(`SELECT ss_user_status($1)`, [obj.userId]);
+            let [partnerid, name, secretkey] = decryptData(obj.partnerId);
+            const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
+            const result = await connection.query(`
+                update $1.register
+                set status = true
+                where user_id = $2;`, [schemaName, obj.userId]);
 
             // Check the result of the query
             if (result.rows.length > 0 && result.rows[0].ss_user_status) {
@@ -352,23 +357,26 @@ io.on('connection', async (socket) => {
         }
 
         // Call the function and log the result
-        const foundKey = findKeyByValue(users, socket.id);
-        if (screenShare[foundKey] === 1) {
-            screenShare[foundKey] = 0;
+        const userId = findKeyByValue(users, socket.id);
+        if (screenShare[userId] === 1) {
+            screenShare[userId] = 0;
             const stoppedScreenSharing = binaryEvent('stoppedScreenSharing');
             socket.to(adminSocket).emit(stoppedScreenSharing);
         }
 
         const connection = new Client(config);
         try {
-            if (foundKey) {
+            if (userId) {
                 await connection.connect();
-                const falseStatus = await connection.query(`select ss_user_logout($1)`, [foundKey]);
-                await connection.end();
-
-                delete users[partnerId][foundKey];
+                let [partnerid, name, secretkey] = decryptData(partnerId);
+                const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
+                const result = await connection.query(`
+                    update $1.register
+                    set status = false
+                    where user_id = $2;`, [schemaName, userId]);
+                delete users[partnerId][userId];
                 const activeUsers = Object.keys(users[partnerId]).length;
-                const data = { activeUsers, userId: foundKey }
+                const data = { activeUsers, userId: userId }
                 const jsonstring = JSON.stringify(data);
 
                 const binaryCode = stringToBinary(jsonstring);
@@ -394,6 +402,8 @@ io.on('connection', async (socket) => {
 
         } catch (err) {
             console.error(err);
+        } finally {
+            await connection.end();
         }
     });
 });

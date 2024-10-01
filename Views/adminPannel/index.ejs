@@ -148,12 +148,12 @@
                     </div>
                     <ul id="ul" class="userName list-unstyled navbar__list">
                         <% activeUsers.forEach((user)=>{ %>
-                            <li class="active has-sub" id="<%=user.id%>" style="margin-bottom: 20px;">
+                            <li class="active has-sub" id="<%=user.user_id%>" style="margin-bottom: 20px;">
                                 <div style="display: flex;">
-                                    <input class="currentUserCheckBox" value="<%= user.id %>" type="checkbox"
+                                    <input class="currentUserCheckBox" value="<%= user.user_id %>" type="checkbox"
                                         style="margin-right: 10px; width: 20px;">
-                                    <h3 onclick="demo('<%= user.id %>')" class="userName" style="cursor: pointer;">
-                                        <%=user.name%>
+                                    <h3 onclick="demo('<%= user.user_id %>')" class="userName" style="cursor: pointer;">
+                                        <%=user.user_id%>
                                     </h3>
                                 </div>
                             </li>
@@ -172,7 +172,7 @@
                                     <input class="userCheckBox" value="<%= u.id %>" type="checkbox"
                                         style="margin-right: 10px; width: 20px;">
                                     <h3 style="cursor: pointer; font-size: 18px;">
-                                        <%= u.name %>
+                                        <%= u.user_id %>
                                     </h3>
                                 </div>
                             </li>

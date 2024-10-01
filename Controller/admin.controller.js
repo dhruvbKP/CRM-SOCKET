@@ -93,7 +93,7 @@ module.exports.login = async (req, res) => {
             const binaryTokenString = binaryToken(token);
             res.cookie('toAu', binaryTokenString);
             res.cookie('user', checkEmail.rows);
-            await connection.end();
+           
             return res.redirect('/admin/home');
         }
         else {
@@ -103,8 +103,9 @@ module.exports.login = async (req, res) => {
     }
     catch (e) {
         console.log(e);
-        await connection.end();
         return res.redirect('back');
+    }finally{
+        await connection.end();
     }
 };
 
@@ -124,11 +125,11 @@ module.exports.home = async (req, res) => {
     try {
         await connection.connect();
         const currentUser = req.cookies.user;
-        const data = await connection.query(`select * from ${schemaName}.register`);
+        const data = await connection.query(`select DISTINCT user_id from ${schemaName}.push_subscription;`);
         console.log(data.rows[0]);
-        // const activeUsers = (await connection.query('select * from ss_user_tbl where status = true;')).rows;
+        const activeUsers = (await connection.query(`select * from ${schemaName}.register where status = true;`)).rows;
         const user = data.rows;
-        return res.render('adminPannel/index', { currentUser });
+        return res.render('adminPannel/index', { currentUser, activeUsers, user });
     }
     catch (e) {
         console.log("Something went wrong", e);
