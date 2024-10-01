@@ -1,4 +1,4 @@
-let cryptoJS = require('crypto-js')
+let cryptoJS = require('crypto-js');
 const decryptData = async (partnerKey) => {
     try {
         if (partnerKey) {

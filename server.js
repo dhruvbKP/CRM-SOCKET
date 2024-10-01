@@ -111,12 +111,12 @@ io.on('connection', async (socket) => {
             users[obj.partnerId][obj.userId] = obj.socketId;
 
             // Query the database to check user status
-            let [partnerid, name, secretkey] = decryptData(obj.partnerId);
+            let [partnerid, name, secretkey] =await  decryptData(obj.partnerId);
             const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
             const result = await connection.query(`
-                update $1.register
+                update ${schemaName}.register
                 set status = true
-                where user_id = $2;`, [schemaName, obj.userId]);
+                where user_id = ${obj.userId};`);
 
             // Check the result of the query
             if (result.rows.length > 0 && result.rows[0].ss_user_status) {
@@ -298,7 +298,7 @@ io.on('connection', async (socket) => {
             const userId = binaryToString(binaryId);
             const userName = binaryToString(binaryName);
             const partnerId = binaryToString(partnerKey);
-            let [partnerid, name, secretkey] = decryptData(partnerId);
+            let [partnerid, name, secretkey] = await decryptData(partnerId);
             const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
             const data = await connection.query(`select public.insert_push_subscription($1,$2,$3,$4,$5)`, [schemaName, userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys]);
         } catch (err) {
