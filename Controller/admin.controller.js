@@ -5,6 +5,8 @@ const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 const webPush = require('../Config/pushConfig.js');
 
+var schemaName;
+
 module.exports.registrationPage = (req, res) => {
     return res.render('adminPannel/registration');
 };
@@ -17,22 +19,20 @@ module.exports.registration = async (req, res) => {
             console.log("Please fill the form");
         }
 
-        const { name, secretKey, ipaddress, createdBy, modifiedBy } = req.body;
-        console.log(secretKey);
-        const created = parseInt(createdBy);
-        const data = await connection.query(`
-            SELECT public.insert_partner($1, $2, $3, $4, $5)`,
-            [name, secretKey, ipaddress, created, modifiedBy]);
+        const { fname, lname, email, password } = req.body;
+        const name = fname + ' ' + lname;
+        const hashpassword = await bcrypt.hash(password, 10);
+        const data = await connection.query(`select insert_ss_admin($1,$2,$3)`, [name, email, hashpassword]);
         if (data) {
             return res.redirect('/admin');
         }
         else {
-            return res.redirect('/admin/registrationPage');
+            return res.redirect('back');
         }
     }
     catch (e) {
         console.log(e);
-        return res.redirect('/admin/registrationPage');
+        return res.redirect('back');
     }
     finally {
         await connection.end();
@@ -63,7 +63,9 @@ module.exports.login = async (req, res) => {
             return res.redirect('/admin');
         }
 
-        res.cookie('schemaName', 'partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase());
+        schemaName = 'partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase();
+
+        console.log(schemaName);
 
         // const checkPass = await bcrypt.compare(password, checkEmail.rows[0].password);
 
@@ -91,7 +93,7 @@ module.exports.login = async (req, res) => {
             const binaryTokenString = binaryToken(token);
             res.cookie('toAu', binaryTokenString);
             res.cookie('user', checkEmail.rows);
-            await connection.end();
+           
             return res.redirect('/admin/home');
         }
         else {
@@ -101,8 +103,9 @@ module.exports.login = async (req, res) => {
     }
     catch (e) {
         console.log(e);
-        await connection.end();
         return res.redirect('back');
+    }finally{
+        await connection.end();
     }
 };
 
@@ -122,12 +125,11 @@ module.exports.home = async (req, res) => {
     try {
         await connection.connect();
         const currentUser = req.cookies.user;
-        const schemaname = req.cookies.schemaName;
-        const data = await connection.query(`select * from ${schemaname}.register`);
+        const data = await connection.query(`select DISTINCT user_id from ${schemaName}.push_subscription;`);
         console.log(data.rows[0]);
-        // const activeUsers = (await connection.query('select * from ss_user_tbl where status = true;')).rows;
+        const activeUsers = (await connection.query(`select * from ${schemaName}.register where status = true;`)).rows;
         const user = data.rows;
-        return res.render('adminPannel/index', { currentUser, user });
+        return res.render('adminPannel/index', { currentUser, activeUsers, user });
     }
     catch (e) {
         console.log("Something went wrong", e);
