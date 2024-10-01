@@ -47,7 +47,7 @@ module.exports.login = async (req, res) => {
     try {
         await connection.connect();
         if (!req.body) {
-            console.log("Please fill the form");
+            console.log("Please fill the form"); 
         }
 
         const { email, password } = req.body;
