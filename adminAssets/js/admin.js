@@ -195,7 +195,8 @@ pushForm.addEventListener('submit', async (e) => {
         body: JSON.stringify({
             ids: usersubscriptionIds,
             body: message,
-            title: title
+            title: title,
+            partnerKey: partnerKey
         })
     })
 });
@@ -673,7 +674,8 @@ function sendNotification(NotifyUsersId, name, notification) {
         body: JSON.stringify({
             ids: NotifyUsersId,
             title: name,
-            body: notification
+            body: notification,
+            partnerKey: partnerKey
         })
     })
         .then((response) => {
