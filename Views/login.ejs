@@ -50,16 +50,18 @@
                             <h1>DocsMed</h1>
                         </div>
                         <div class="login-form">
-                            <form action="/login" method="post">
+                            <form method="post">
                                 <div class="form-group">
-                                    <label>Email Address</label>
-                                    <input class="au-input au-input--full" type="email" name="email" placeholder="Email">
+                                    <label>user id</label>
+                                    <input class="au-input au-input--full" type="text" name="user_id"
+                                        placeholder="User id">
                                 </div>
                                 <div class="form-group">
-                                    <label>Password</label>
-                                    <input class="au-input au-input--full" type="password" name="password" placeholder="Password">
+                                    <label>Origin</label>
+                                    <input class="au-input au-input--full" type="text" name="origin"
+                                        placeholder="origin">
                                 </div>
-                                <button class="au-btn au-btn--block au-btn--green" type="submit">Log in</button>
+                                <button id="loginBtn" class="au-btn au-btn--block au-btn--green" type="button">Log in</button>
                             </form>
                             <div class="register-link">
                                 <p>
@@ -98,6 +100,7 @@
 
     <!-- Main JS-->
     <script src="/js/main.js"></script>
+    <script src="/js/login.js"></script>
 
 </body>
 
