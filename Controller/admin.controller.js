@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const { Client } = require('pg');
-
+const { decryptData } = require('../keyDecrypt.js')
 const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 const webPush = require('../Config/pushConfig.js');
@@ -63,7 +63,7 @@ module.exports.login = async (req, res) => {
             return res.redirect('/admin');
         }
 
-        res.cookie('schemaName','partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase());
+        res.cookie('schemaName', 'partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase());
 
         console.log(schemaName);
 
@@ -93,7 +93,7 @@ module.exports.login = async (req, res) => {
             const binaryTokenString = binaryToken(token);
             res.cookie('toAu', binaryTokenString);
             res.cookie('user', checkEmail.rows);
-           
+
             return res.redirect('/admin/home');
         }
         else {
@@ -104,7 +104,7 @@ module.exports.login = async (req, res) => {
     catch (e) {
         console.log(e);
         return res.redirect('back');
-    }finally{
+    } finally {
         await connection.end();
     }
 };
@@ -144,7 +144,9 @@ module.exports.notify = async (req, res) => {
     const connection = new Client(config);
     try {
         await connection.connect();
-        const { ids, body, title } = req.body;
+        const { ids, body, title, partnerKey } = req.body;
+        let [partnerid, name, secretkey] = await decryptData(partnerKey);
+        const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
         const payload = JSON.stringify({
             "title": body,
             "body": title,
@@ -158,7 +160,7 @@ module.exports.notify = async (req, res) => {
         });
         let subscriptionsAlluser = [];
         for (let id of ids) {
-            let x = await connection.query(`select endpoint, expirationTime, keys from ss_user_subscription where userid = ${id}`);
+            let x = await connection.query(`select endpoint, expirationTime, keys from ${schemaName}.push_subscription where user_id = ${id}`);
             x.rows.forEach(x => {
                 subscriptionsAlluser.push(x)
             })
@@ -171,7 +173,7 @@ module.exports.notify = async (req, res) => {
             } catch (error) {
                 if (error.statusCode === 410) {
                     await connection.query(
-                        'DELETE FROM public.ss_user_subscription WHERE endpoint = $1',
+                        `DELETE FROM ${schemaName}.push_subscription WHERE endpoint = $1`,
                         [subscription.endpoint]
                     );
                 } else {

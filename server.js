@@ -301,6 +301,8 @@ io.on('connection', async (socket) => {
             let [partnerid, name, secretkey] = await decryptData(partnerId);
             const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
             const data = await connection.query(`select public.insert_push_subscription($1,$2,$3,$4,$5)`, [schemaName, userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys]);
+            console.log(data.rows[0]);
+            
         } catch (err) {
             console.log(err);
         } finally {
@@ -371,7 +373,7 @@ io.on('connection', async (socket) => {
         try {
             if (userId) {
                 await connection.connect();
-                let [partnerid, name, secretkey] = decryptData(partnerId);
+                let [partnerid, name, secretkey] = await decryptData(partnerId);
                 const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
                 const result = await connection.query(`
                     update $1.register

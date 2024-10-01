@@ -28,7 +28,7 @@ span.onclick = function () {
 
 let videoElement = document.createElement('video');
 
-const partnerKey = 'ckKyVx4WfJxPSOX3aRLCdntX2uDvOIwv1HqGOFlahBDNVc37gT9taviOa0zB1RGe4HQwuATfgMQpHYqGLEnV3g==';
+const partnerKey = 'rG+0Gv+N81fqnbAqIIL6Ta93DOTp56nRg5i3/h89j7mAmWyXld3E+1f5L0MNFQIz9I+t24jyvC68aR2xFICmFA==';
 
 let receivedChunks = [];
 let totalChunksExpected = 0;
@@ -195,7 +195,8 @@ pushForm.addEventListener('submit', async (e) => {
         body: JSON.stringify({
             ids: usersubscriptionIds,
             body: message,
-            title: title
+            title: title,
+            partnerKey: partnerKey
         })
     })
 });
@@ -673,7 +674,8 @@ function sendNotification(NotifyUsersId, name, notification) {
         body: JSON.stringify({
             ids: NotifyUsersId,
             title: name,
-            body: notification
+            body: notification,
+            partnerKey: partnerKey
         })
     })
         .then((response) => {
