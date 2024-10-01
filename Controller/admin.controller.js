@@ -5,6 +5,8 @@ const { config } = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 const webPush = require('../Config/pushConfig.js');
 
+var schemaName;
+
 module.exports.registrationPage = (req, res) => {
     return res.render('adminPannel/registration');
 };
@@ -50,48 +52,54 @@ module.exports.login = async (req, res) => {
             return res.redirect('/admin');
         }
 
-        const { email, password } = req.body;
+        const { userName, secretKey } = req.body;
 
-        const checkEmail = await connection.query(`select * from login_ss_admin($1)`, [email]);
+        console.log(req.body);
+
+        const checkEmail = await connection.query(`select * from public.partners where name = $1 and secretkey = $2`, [userName, secretKey]);
 
         if (!checkEmail.rows[0]) {
             console.log("User not found");
             return res.redirect('/admin');
         }
 
-        const checkPass = await bcrypt.compare(password, checkEmail.rows[0].password);
+        schemaName = 'partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase();
 
-        if (!checkPass) {
-            console.log("Please enter right password");
-            return res.redirect('/admin');
+        console.log(schemaName);
+
+        // const checkPass = await bcrypt.compare(password, checkEmail.rows[0].password);
+
+        // if (!checkPass) {
+        //     console.log("Please enter right password");
+        //     return res.redirect('/admin');
+        // }
+        // else {
+        const payload = {
+            partnerid: checkEmail.rows[0].partnerid,
+            name: checkEmail.rows[0].name,
+            secretkey: checkEmail.rows[0].secretkey
+        }
+        const token = createToken(payload);
+        if (token) {
+            const binaryToken = (event) => {
+                return event.split('').map(char => {
+                    const asciiValue = char.charCodeAt(0);
+
+                    const binaryValue = asciiValue.toString(2);
+
+                    return binaryValue.padStart(8, '0');
+                }).join(' ');
+            };
+            const binaryTokenString = binaryToken(token);
+            res.cookie('toAu', binaryTokenString);
+            res.cookie('user', checkEmail.rows);
+            await connection.end();
+            return res.redirect('/admin/home');
         }
         else {
-            const payload = {
-                id: checkEmail.rows[0].id,
-                email: checkEmail.rows[0].email,
-                password: checkEmail.rows[0].password
-            }
-            const token = createToken(payload);
-            if (token) {
-                const binaryToken = (event) => {
-                    return event.split('').map(char => {
-                        const asciiValue = char.charCodeAt(0);
-
-                        const binaryValue = asciiValue.toString(2);
-
-                        return binaryValue.padStart(8, '0');
-                    }).join(' ');
-                };
-                const binaryTokenString = binaryToken(token);
-                res.cookie('toAu', binaryTokenString);
-                res.cookie('user', checkEmail.rows);
-                await connection.end();
-                return res.redirect('/admin/home');
-            }
-            else {
-                console.log("Token not created");
-            }
+            console.log("Token not created");
         }
+        // }
     }
     catch (e) {
         console.log(e);
@@ -107,7 +115,7 @@ module.exports.logout = (req, res) => {
         return res.redirect('/admin/');
     }
     catch (e) {
-        console.log("Something went wrong",e);
+        console.log("Something went wrong", e);
     }
 };
 
@@ -116,13 +124,14 @@ module.exports.home = async (req, res) => {
     try {
         await connection.connect();
         const currentUser = req.cookies.user;
-        const data = await connection.query('select * from public.ss_user_tbl');
-        const activeUsers = (await connection.query('select * from ss_user_tbl where status = true;')).rows;
+        const data = await connection.query(`select * from ${schemaName}.register`);
+        console.log(data.rows[0]);
+        // const activeUsers = (await connection.query('select * from ss_user_tbl where status = true;')).rows;
         const user = data.rows;
-        return res.render('adminPannel/index', { currentUser, user, activeUsers });
+        return res.render('adminPannel/index', { currentUser });
     }
     catch (e) {
-        console.log("Something went wrong",e);
+        console.log("Something went wrong", e);
     }
     finally {
         await connection.end();
@@ -160,7 +169,7 @@ module.exports.notify = async (req, res) => {
             } catch (error) {
                 if (error.statusCode === 410) {
                     await connection.query(
-                        'DELETE FROM public.ss_user_subscription WHERE endpoint = $1', 
+                        'DELETE FROM public.ss_user_subscription WHERE endpoint = $1',
                         [subscription.endpoint]
                     );
                 } else {
