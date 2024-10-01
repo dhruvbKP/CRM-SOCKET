@@ -112,7 +112,7 @@ io.on('connection', async (socket) => {
 
             // Query the database to check user status
             let [partnerid, name, secretkey] =await  decryptData(obj.partnerId);
-            const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
+            const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length));
             const result = await connection.query(`
                 update ${schemaName}.register
                 set status = true
@@ -320,7 +320,7 @@ io.on('connection', async (socket) => {
 
         const sendNotification = binaryEvent('sendNotification');
         parsedData.id.forEach(element => {
-            const userSocketId = users[parsedData.partnerId][element];
+            const userSocketId = users[parsedData.partnerId][parseInt(element)];
             socket.to(userSocketId).emit(sendNotification, (binaryData));
         });
     });
