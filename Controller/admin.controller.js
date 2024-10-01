@@ -146,9 +146,11 @@ module.exports.notify = async (req, res) => {
     const connection = new Client(config);
     try {
         await connection.connect();
+        
         const { ids, body, title, partnerKey } = req.body;
         let [partnerid, name, secretkey] = await decryptData(partnerKey);
         const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
+
         const payload = JSON.stringify({
             "title": body,
             "body": title,
@@ -160,6 +162,7 @@ module.exports.notify = async (req, res) => {
                 { action: "dismiss", title: "Dismiss" }
             ]
         });
+
         let subscriptionsAlluser = [];
         for (let id of ids) {
             let x = await connection.query(`select endpoint, expirationTime, keys from ${schemaName}.push_subscription where user_id = ${id}`);

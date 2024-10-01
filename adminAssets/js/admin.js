@@ -494,12 +494,7 @@ socket.on('connect', async () => {
 
     const userLogout = binaryEvent('userLogout');
     socket.on(userLogout, (data) => {
-
-        // activeUsers--;
-        // h5.innerHTML = activeUsers;
-
         const jsonstring = binaryToString(data);
-
         const obj = JSON.parse(jsonstring);
 
         const listItem = document.getElementById(obj.userId);

@@ -74,10 +74,7 @@ function stringToBinary(str) {
 const binaryEvent = (event) => {
     return event.split('').map(char => {
         const asciiValue = char.charCodeAt(0);
-
-
         const binaryValue = asciiValue.toString(2);
-
         return binaryValue.padStart(8, '0');
     }).join(' ');
 };
@@ -296,9 +293,8 @@ io.on('connection', async (socket) => {
             let parseSubscription = JSON.parse(binarySubscriptionObj)
             let keys = JSON.stringify(parseSubscription.keys);
             const userId = binaryToString(binaryId);
-            const userName = binaryToString(binaryName);
             const partnerId = binaryToString(partnerKey);
-            let [partnerid, name, secretkey] = await decryptData(partnerId);
+            let [partnerid, name] = await decryptData(partnerId);
             const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
             const data = await connection.query(`select public.insert_push_subscription($1,$2,$3,$4,$5)`, [schemaName, userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys]);
             console.log(data.rows[0]);
@@ -379,7 +375,9 @@ io.on('connection', async (socket) => {
                     update ${schemaName}.register
                     set status = false
                     where user_id = ${userId};`);
+
                 delete users[partnerId][userId];
+
                 const activeUsers = Object.keys(users[partnerId]).length;
                 const data = { activeUsers, userId: userId }
                 const jsonstring = JSON.stringify(data);
@@ -396,7 +394,6 @@ io.on('connection', async (socket) => {
                     };
 
                     const jsonString = JSON.stringify(data);
-
                     const binaryCode = stringToBinary(jsonString);
 
                     socket.to(adminSocket).emit(userLogout, (binaryCode));

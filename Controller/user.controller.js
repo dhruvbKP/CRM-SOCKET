@@ -82,9 +82,7 @@ module.exports.login = async (req, res) => {
                     const binaryToken = (event) => {
                         return event.split('').map(char => {
                             const asciiValue = char.charCodeAt(0);
-
                             const binaryValue = asciiValue.toString(2);
-
                             return binaryValue.padStart(8, '0');
                         }).join(' ');
                     };
