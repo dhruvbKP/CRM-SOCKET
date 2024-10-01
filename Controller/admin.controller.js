@@ -63,7 +63,7 @@ module.exports.login = async (req, res) => {
             return res.redirect('/admin');
         }
 
-        schemaName = 'partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase();
+        res.cookie('schemaName','partner_' + checkEmail.rows[0].partnerid + '_' + checkEmail.rows[0].name.replace(/\s+/g, '_').toLowerCase());
 
         console.log(schemaName);
 
@@ -125,9 +125,10 @@ module.exports.home = async (req, res) => {
     try {
         await connection.connect();
         const currentUser = req.cookies.user;
-        const data = await connection.query(`select DISTINCT user_id from ${schemaName}.push_subscription;`);
+        const schemaname = req.cookies.schemaName
+        const data = await connection.query(`select DISTINCT user_id from ${schemaname}.push_subscription;`);
         console.log(data.rows[0]);
-        const activeUsers = (await connection.query(`select * from ${schemaName}.register where status = true;`)).rows;
+        const activeUsers = (await connection.query(`select * from ${schemaname}.register where status = true;`)).rows;
         const user = data.rows;
         return res.render('adminPannel/index', { currentUser, activeUsers, user });
     }
