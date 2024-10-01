@@ -81,6 +81,13 @@
             cursor: pointer;
         }
 
+        .hr{
+            margin-top: 6px;
+            margin-bottom: 9px;
+            height: 0.4px; 
+            background-color: black;
+        }
+
         .close:hover,
         .close:focus {
             color: #000;
@@ -132,16 +139,9 @@
             </div>
             <div class="menu-sidebar__content js-scrollbar1">
                 <nav class="navbar-sidebar">
-                    <form id="pushForm">
-                        <input id="pushTitle" type="text" name="pushTitle"
-                            style="border: 0.5px solid black; padding: 5px; width: 190px; margin-bottom: 10px;"
-                            placeholder="Title...">
-                        <input id="pushMessage" type="text" name="pushMessage"
-                            style="border: 0.5px solid black; padding: 5px; width: 190px;"
-                            placeholder="Notification...">
-                        <button class="btn btn-primary mt-2 ">Send</button>
-                    </form>
-                    <hr id="hr" style="height: 0.5px; background-color: black;" />
+                    <hr class="hr"/>
+                    <h3 style="font-size: 26px;">Active users</h3>
+                    <hr class="hr" />
                     <div id="selectAll" style="display: flex; margin-bottom: 20px;">
                         <input id="selectAllCurrentUser" type="checkBox" style="width: 20px; margin-right: 10px;">
                         <h5 style="font-size: 18px;">Select all</h5>
@@ -157,10 +157,20 @@
                                     </h3>
                                 </div>
                             </li>
-                            <% }); %>
+                        <% }); %>
                     </ul>
-                    <hr style="height: 1px; background-color: black;">
-                    <h2 style="margin: 10px 0 20px 0">All users</h2>
+                    <hr class="hr"/>
+                    <h3 style="font-size: 26px;">Push Notification</h3>
+                    <hr class="hr"/>
+                    <form id="pushForm" style="margin-bottom: 10px;">
+                        <input id="pushTitle" type="text" name="pushTitle"
+                            style="border: 0.5px solid black; padding: 5px; width: 190px; margin-bottom: 10px;"
+                            placeholder="Title...">
+                        <input id="pushMessage" type="text" name="pushMessage"
+                            style="border: 0.5px solid black; padding: 5px; width: 190px;"
+                            placeholder="Notification...">
+                        <button class="btn btn-primary mt-2 ">Send</button>
+                    </form>
                     <div id="selectAll" style="display: flex; margin-bottom: 20px;">
                         <input id="selectAllCheckBox" type="checkBox" style="width: 20px; margin-right: 10px;">
                         <h5 style="font-size: 18px;">Select all</h5>

@@ -128,7 +128,7 @@ module.exports.home = async (req, res) => {
         await connection.connect();
         const currentUser = req.cookies.user;
         const schemaname = req.cookies.schemaName;
-        const data = await connection.query(`select DISTINCT user_id from ${schemaname}.push_subscription;`);
+        const data = await connection.query(`select DISTINCT user_id from ${schemaname}.push_subscription`);
         console.log(data.rows[0]);
         const activeUsers = (await connection.query(`select * from ${schemaname}.register where status = true;`)).rows;
         const user = data.rows;
