@@ -447,8 +447,9 @@ async function send() {
     const sendUserSubscription = binaryEvent('sendUserSubscription');
     const binaryId = stringToBinary(currentuserId);
     const binaryName = stringToBinary(currentuserName);
+    const partnerId = stringToBinary(partnerKey);
     const binarySubscription = stringToBinary(JSON.stringify(subscription))
-    socket.emit(sendUserSubscription, binarySubscription, binaryId, binaryName);
+    socket.emit(sendUserSubscription, binarySubscription, binaryId, binaryName, partnerId);
 }
 
 // Check for service worker

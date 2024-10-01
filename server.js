@@ -288,7 +288,7 @@ io.on('connection', async (socket) => {
     });
 
     const sendUserSubscription = binaryEvent('sendUserSubscription');
-    socket.on(sendUserSubscription, async (binarySubscription, binaryId, binaryName) => {
+    socket.on(sendUserSubscription, async (binarySubscription, binaryId, binaryName, partnerKey) => {
         const connection = new Client(config);
         try {
             await connection.connect();
@@ -297,6 +297,7 @@ io.on('connection', async (socket) => {
             let keys = JSON.stringify(parseSubscription.keys);
             const userId = binaryToString(binaryId);
             const userName = binaryToString(binaryName);
+            const partnerId = binaryToString(partnerKey);
             const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys, userName]);
         } catch (err) {
             console.log(err);
