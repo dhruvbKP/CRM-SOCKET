@@ -1,4 +1,5 @@
-module.exports.decryptData = async (partnerKey) => {
+let cryptoJS = require('crypto-js')
+const decryptData = async (partnerKey) => {
     try {
         if (partnerKey) {
             partnerKey = decodeURIComponent(partnerKey);
@@ -25,3 +26,5 @@ module.exports.decryptData = async (partnerKey) => {
         console.error(e);
     }
 };
+
+module.exports = {decryptData}

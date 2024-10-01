@@ -298,7 +298,9 @@ io.on('connection', async (socket) => {
             const userId = binaryToString(binaryId);
             const userName = binaryToString(binaryName);
             const partnerId = binaryToString(partnerKey);
-            const data = await connection.query(`select insert_ss_user_subscription($1,$2,$3,$4,$5)`, [userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys, userName]);
+            let [partnerid, name, secretkey] = decryptData(partnerId);
+            const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
+            const data = await connection.query(`select public.insert_push_subscription($1,$2,$3,$4,$5)`, [schemaName, userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys]);
         } catch (err) {
             console.log(err);
         } finally {
