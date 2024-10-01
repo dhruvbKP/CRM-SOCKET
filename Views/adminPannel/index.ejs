@@ -147,17 +147,6 @@
                         <h5 style="font-size: 18px;">Select all</h5>
                     </div>
                     <ul id="ul" class="userName list-unstyled navbar__list">
-                        <% activeUsers.forEach((user)=>{ %>
-                            <li class="active has-sub" id="<%=user.id%>" style="margin-bottom: 20px;">
-                                <div style="display: flex;">
-                                    <input class="currentUserCheckBox" value="<%= user.id %>" type="checkbox"
-                                        style="margin-right: 10px; width: 20px;">
-                                    <h3 onclick="demo('<%= user.id %>')" class="userName" style="cursor: pointer;">
-                                        <%=user.name%>
-                                    </h3>
-                                </div>
-                            </li>
-                            <% }); %>
                     </ul>
                     <hr style="height: 1px; background-color: black;">
                     <h2 style="margin: 10px 0 20px 0">All users</h2>
@@ -169,10 +158,10 @@
                         <% for(u of user) { %>
                             <li style="margin-bottom: 20px;">
                                 <div style="display: flex;">
-                                    <input class="userCheckBox" value="<%= u.id %>" type="checkbox"
+                                    <input class="userCheckBox" value="<%= u.user_id %>" type="checkbox"
                                         style="margin-right: 10px; width: 20px;">
                                     <h3 style="cursor: pointer; font-size: 18px;">
-                                        <%= u.name %>
+                                        <%= u.user_id %>
                                     </h3>
                                 </div>
                             </li>
