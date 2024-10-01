@@ -254,7 +254,7 @@ socket.on('connect', async () => {
                                 <input class="currentUserCheckBox" value="${obj.userId}" type="checkbox"
                                     style="margin-right: 10px; width: 20px;">
                                 <h3 onclick="demo('${obj.userId}')" class="userName" style="cursor: pointer;">
-                                    ${obj.userName}
+                                    ${obj.userId}
                                 </h3>
                             </div>
                         </li>`;
