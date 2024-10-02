@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const { Client } = require('pg');
 const { decryptData } = require('../keyDecrypt.js')
-const { config } = require('../Config/db');
+const pgClient = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 const webPush = require('../Config/pushConfig.js');
 
@@ -12,9 +12,8 @@ module.exports.registrationPage = (req, res) => {
 };
 
 module.exports.registration = async (req, res) => {
-    const connection = new Client(config);
+    const client = await pgClient.connect();
     try {
-        await connection.connect();
         if (!req.body) {
             console.log("Please fill the form");
         }
@@ -22,7 +21,7 @@ module.exports.registration = async (req, res) => {
         const { name, secretkey, ipaddress, createdBy, modifiedBy } = req.body;
         const created = parseInt(createdBy);
         const modified = parseInt(modifiedBy);
-        const insertData = await connection.query(`
+        const insertData = await client.query(`
             SELECT public.insert_partner($1, $2, $3, $4, $5)`,
             [name, secretkey, ipaddress, created, modified]);
         if (insertData) {
@@ -37,7 +36,7 @@ module.exports.registration = async (req, res) => {
         return res.redirect('back');
     }
     finally {
-        await connection.end();
+        await client.release();
     }
 };
 
@@ -46,9 +45,8 @@ module.exports.loginPage = (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-    const connection = new Client(config);
+    const client = await pgClient.connect();
     try {
-        await connection.connect();
         if (!req.body) {
             console.log("Please fill the form");
             return res.redirect('/admin');
@@ -58,7 +56,7 @@ module.exports.login = async (req, res) => {
 
         console.log(req.body);
 
-        const checkEmail = await connection.query(`select * from public.partners where name = $1 and secretkey = $2`, [userName, secretKey]);
+        const checkEmail = await client.query(`select * from public.partners where name = $1 and secretkey = $2`, [userName, secretKey]);
 
         if (!checkEmail.rows[0]) {
             console.log("User not found");
@@ -107,7 +105,7 @@ module.exports.login = async (req, res) => {
         console.log(e);
         return res.redirect('back');
     } finally {
-        await connection.end();
+        await client.release();
     }
 };
 
@@ -123,14 +121,13 @@ module.exports.logout = (req, res) => {
 };
 
 module.exports.home = async (req, res) => {
-    const connection = new Client(config);
+    const client = await pgClient.connect();
     try {
-        await connection.connect();
         const currentUser = req.cookies.user;
         const schemaname = req.cookies.schemaName;
-        const data = await connection.query(`select DISTINCT user_id from ${schemaname}.push_subscription`);
+        const data = await client.query(`select DISTINCT user_id from ${schemaname}.push_subscription`);
         console.log(data.rows[0]);
-        const activeUsers = (await connection.query(`select * from ${schemaname}.register where status = true;`)).rows;
+        const activeUsers = (await client.query(`select * from ${schemaname}.register where status = true;`)).rows;
         const user = data.rows;
         return res.render('adminPannel/index', { currentUser, activeUsers, user });
     }
@@ -138,14 +135,13 @@ module.exports.home = async (req, res) => {
         console.log("Something went wrong", e);
     }
     finally {
-        await connection.end();
+        await client.release();
     }
 };
 
 module.exports.notify = async (req, res) => {
-    const connection = new Client(config);
+    const client = await pgClient.connect();
     try {
-        await connection.connect();
         
         const { ids, body, title, partnerKey } = req.body;
         let [partnerid, name, secretkey] = await decryptData(partnerKey);
@@ -165,7 +161,7 @@ module.exports.notify = async (req, res) => {
 
         let subscriptionsAlluser = [];
         for (let id of ids) {
-            let x = await connection.query(`select endpoint, expirationTime, keys from ${schemaName}.push_subscription where user_id = ${id}`);
+            let x = await client.query(`select endpoint, expirationTime, keys from ${schemaName}.push_subscription where user_id = ${id}`);
             x.rows.forEach(x => {
                 subscriptionsAlluser.push(x)
             })
@@ -177,7 +173,7 @@ module.exports.notify = async (req, res) => {
                 await webPush.sendNotification(subscription, payload);
             } catch (error) {
                 if (error.statusCode === 410) {
-                    await connection.query(
+                    await client.query(
                         `DELETE FROM ${schemaName}.push_subscription WHERE endpoint = $1`,
                         [subscription.endpoint]
                     );
@@ -191,6 +187,6 @@ module.exports.notify = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
     finally {
-        await connection.end();
+        await client.release();
     }
 };

@@ -1,7 +1,5 @@
 const bcrypt = require('bcrypt');
-const { Client } = require('pg');
-
-const { config } = require('../Config/db');
+const pgClient = require('../Config/db');
 const { createToken } = require('../Config/token.js');
 
 module.exports.registerpage = (req, res) => {
@@ -10,9 +8,8 @@ module.exports.registerpage = (req, res) => {
 
 module.exports.registration = async (req, res) => {
 
-    const connection = new Client(config);
+    const client = await pgClient.connect();
     try {
-        await connection.connect();
         if (!req.body) {
             console.log("Please fill the form");
         }
@@ -20,7 +17,7 @@ module.exports.registration = async (req, res) => {
         const name = fname + ' ' + lname;
         const hashpassword = await bcrypt.hash(password, 10);
         req.body.status = false;
-        const data = await connection.query(`select insert_ss_user($1,$2,$3,$4)`, [name, email, hashpassword, req.body.status]);
+        const data = await client.query(`select insert_ss_user($1,$2,$3,$4)`, [name, email, hashpassword, req.body.status]);
         if (data) {
             return res.redirect('/');
         }
@@ -33,7 +30,7 @@ module.exports.registration = async (req, res) => {
         return res.redirect('back');
     }
     finally {
-        await connection.end();
+        await client.release();
     }
 };
 
@@ -43,16 +40,15 @@ module.exports.loginPage = (req, res) => {
 
 module.exports.login = async (req, res) => {
 
-    const connection = new Client(config);
+    const client = await pgClient.connect();
     try {
-        await connection.connect();
         if (!req.body) {
-            console.log("Please fill the form"); 
+            console.log("Please fill the form");
         }
 
         const { email, password } = req.body;
 
-        const checkEmail = await connection.query(`select * from login_ss_user($1)`, [email]);
+        const checkEmail = await client.query(`select * from login_ss_user($1)`, [email]);
 
         if (!checkEmail) {
             console.log("User not found");
@@ -66,7 +62,7 @@ module.exports.login = async (req, res) => {
             return res.redirect('back');
         }
         else {
-            const trueStatus = await connection.query(`select ss_user_status($1)`, [checkEmail.rows[0].id]);
+            const trueStatus = await client.query(`select ss_user_status($1)`, [checkEmail.rows[0].id]);
             if (!trueStatus) {
                 console.log("User not activat");
                 return res.redirect('back');
@@ -99,22 +95,21 @@ module.exports.login = async (req, res) => {
         return res.redirect('back');
     }
     finally {
-        await connection.end();
+        await client.release();
     }
 };
 
 module.exports.logout = async (req, res) => {
 
-    const connection = new Client(config);
+    const client = await pgClient.connect();
     try {
-        await connection.connect();
         const userData = req.cookies.user;
-        const checkEmail = await connection.query(`select * from login_ss_user($1)`, [userData[0].email]);
+        const checkEmail = await client.query(`select * from login_ss_user($1)`, [userData[0].email]);
 
         if (!checkEmail) {
             console.log("User not found");
         } else {
-            const falseStatus = await connection.query(`select ss_user_logout($1)`, [checkEmail.rows[0].id]);
+            const falseStatus = await client.query(`select ss_user_logout($1)`, [checkEmail.rows[0].id]);
             if (!falseStatus) {
                 console.log("User not activated");
                 return res.redirect('back');
@@ -131,7 +126,7 @@ module.exports.logout = async (req, res) => {
         console.log("Something went wrong");
     }
     finally {
-        await connection.end();
+        await client.release();
     }
 };
 

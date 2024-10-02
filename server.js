@@ -1,12 +1,11 @@
 const express = require('express');
 const { createServer } = require('http');
-const { Client } = require('pg');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
 const cp = require('cookie-parser');
 const { Server } = require('socket.io');
-const { config } = require('./Config/db');
+const pgClient = require('./Config/db');
 const bodyParser = require('body-parser');
 const { decryptData } = require('./keyDecrypt.js')
 
@@ -92,9 +91,8 @@ io.on('connection', async (socket) => {
 
     const userJoined = binaryEvent('userJoined');
     socket.on(userJoined, async (data) => {
-        const connection = new Client(config);
+        const client = await pgClient.connect();
         try {
-            await connection.connect();
             // Convert binary data to string, then parse to JSON
             const jsonstring = binaryToString(data);
             const obj = JSON.parse(jsonstring);
@@ -110,7 +108,7 @@ io.on('connection', async (socket) => {
             // Query the database to check user status
             let [partnerid, name, secretkey] =await  decryptData(obj.partnerId);
             const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length));
-            const result = await connection.query(`
+            const result = await client.query(`
                 update ${schemaName}.register
                 set status = true
                 where user_id = ${obj.userId};`);
@@ -141,7 +139,7 @@ io.on('connection', async (socket) => {
         } catch (err) {
             console.error('Error during processing:', err);
         } finally {
-            await connection.end();
+            await client.release();
         }
     });
 
@@ -286,9 +284,8 @@ io.on('connection', async (socket) => {
 
     const sendUserSubscription = binaryEvent('sendUserSubscription');
     socket.on(sendUserSubscription, async (binarySubscription, binaryId, binaryName, partnerKey) => {
-        const connection = new Client(config);
+        const client = await pgClient.connect();
         try {
-            await connection.connect();
             const binarySubscriptionObj = binaryToString(binarySubscription);
             let parseSubscription = JSON.parse(binarySubscriptionObj)
             let keys = JSON.stringify(parseSubscription.keys);
@@ -296,13 +293,13 @@ io.on('connection', async (socket) => {
             const partnerId = binaryToString(partnerKey);
             let [partnerid, name] = await decryptData(partnerId);
             const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
-            const data = await connection.query(`select public.insert_push_subscription($1,$2,$3,$4,$5)`, [schemaName, userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys]);
+            const data = await client.query(`select public.insert_push_subscription($1,$2,$3,$4,$5)`, [schemaName, userId, parseSubscription.endpoint, parseSubscription.expirationTime, keys]);
             console.log(data.rows[0]);
             
         } catch (err) {
             console.log(err);
         } finally {
-            await connection.end();
+            await client.release();
         }
     });
 
@@ -365,13 +362,12 @@ io.on('connection', async (socket) => {
             socket.to(adminSocket).emit(stoppedScreenSharing);
         }
 
-        const connection = new Client(config);
+        const client = await pgClient.connect();
         try {
             if (userId) {
-                await connection.connect();
                 let [partnerid, name, secretkey] = await decryptData(partnerId);
                 const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
-                const result = await connection.query(`
+                const result = await client.query(`
                     update ${schemaName}.register
                     set status = false
                     where user_id = ${userId};`);
@@ -405,7 +401,7 @@ io.on('connection', async (socket) => {
         } catch (err) {
             console.error(err);
         } finally {
-            await connection.end();
+            await client.release();
         }
     });
 });
