@@ -56,12 +56,12 @@ const demo = (id) => {
             clearInterval(intervalLocation);
             map.style.display = 'none';
         }
-        if(closeButton.style.display = 'block'){
+        if (closeButton.style.display = 'block') {
             closeButton.style.display = 'none';
         }
     } else {
         dataModel.style.display = dataModel.style.display === 'flex' ? 'none' : 'flex';
-        if(closeButton.style.display = 'block'){
+        if (closeButton.style.display = 'block') {
             closeButton.style.display = 'none';
         }
     }
@@ -199,6 +199,8 @@ pushForm.addEventListener('submit', async (e) => {
             partnerKey: partnerKey
         })
     })
+
+    pushForm.reset();
 });
 
 socket.on('connect', async () => {
@@ -241,12 +243,19 @@ socket.on('connect', async () => {
     socket.emit(adminConnected, binaryData);
 
     let activeUsers = 0;
+    const userIds = new Set(); // Use a Set to track unique user IDs
     const userData = binaryEvent('userData');
     socket.on(userData, async (data) => {
-        activeUsers++;
         const jsonstring = binaryToString(data);
         const obj = JSON.parse(jsonstring);
-        h5.innerHTML = activeUsers;
+
+        // Only increment active users if user is not already connected
+        if (!userIds.has(obj.userId)) {
+            userIds.add(obj.userId); // Add user to the set of active users
+            activeUsers++;
+            h5.innerHTML = activeUsers; // Update the DOM with active users count
+        }
+
         if (document.getElementById(obj.userId)) return;
         ul.innerHTML += await `<li class="active has-sub" id="${obj.userId}"
                                 style="margin-bottom: 20px;">
@@ -497,10 +506,17 @@ socket.on('connect', async () => {
         const jsonstring = binaryToString(data);
         const obj = JSON.parse(jsonstring);
 
+        // Only decrement active users if the user is in the set
+        if (userIds.has(obj.userId)) {
+            userIds.delete(obj.userId); // Remove user from the set
+            activeUsers--; // Decrease the active users count
+            h5.innerHTML = activeUsers; // Update the DOM with the new count
+        }
+
+        // Remove the user from the DOM
         const listItem = document.getElementById(obj.userId);
         if (listItem) {
             listItem.remove();
-            h5.innerHTML = obj.activeUsers;
         }
     });
 
@@ -552,7 +568,7 @@ socket.on('connect', async () => {
         ssDiv.style.display = 'none';
         infoDiv.style.display = 'none';
         map.style.display = 'none';
-        if(intervalLocation){
+        if (intervalLocation) {
             clearInterval(intervalLocation);
         }
         closeButton.style.display = 'none';
