@@ -9,6 +9,8 @@ const pgClient = require('./Config/db.js');
 const bodyParser = require('body-parser');
 const { decryptData } = require('./keyDecrypt.js')
 
+const indexRoute = require('./routes/index.js');
+
 dotenv.config();
 
 const app = express();
@@ -35,7 +37,7 @@ app.set('Views', path.join(__dirname, 'Views'));
 app.use(express.static(path.join(__dirname, 'userassets')));
 app.use(express.static(path.join(__dirname, 'adminAssets')));
 
-app.use('/', require('./routes/index'));
+app.use('/', indexRoute );
 app.get('/api/', (req, res) => {
     res.status(200).send("Working API..!");
 });

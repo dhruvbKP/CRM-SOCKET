@@ -18,6 +18,4 @@ routes.get('/home', validateAdminToken, home);
 
 routes.post('/notification', notify);
 
-// routes.get('adminPannel/index',(req,res))
-
 module.exports = routes;

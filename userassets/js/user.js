@@ -2,7 +2,6 @@ const socket = io();
 let publicVapidKey = 'BFVA5gXzIz-p2poU4ltPxWYVkMwCJgDRW83uVFGb0huBSH6kp3g7s0zW_IYSHlyJM32gIGCo9FjtQLhgwNzYOOk';
 
 const applicationServerKey = urlBase64ToUint8Array(publicVapidKey);
-// const currentuserId = document.getElementById('currentUserId').value;
 const currentuserName = document.getElementById('currentUserName').value;
 const logout = document.getElementById('logout');
 const notification = document.getElementById('notification');
@@ -62,21 +61,14 @@ socket.on('connect', async () => {
     const raw = await fetch('http://ip-api.com/json/?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,mobile,proxy,query');
     ipAdd = await raw.json();
 
-    // const battery = await navigator.getBattery();
-    // const batteryCharging = battery.charging ? true : false;
-
     const deviceInfo = {
         userAgent: navigator.userAgent,
-        // connectionType: navigator.connection.effectiveType,
         deviceMemory: navigator.deviceMemory,
         screenWidth: window.screen.width,
         screenHeight: window.screen.height,
         viewportWidth: window.innerWidth,
         viewportHeight: window.innerHeight,
-        colorDepth: screen.colorDepth,
-        // downlink: navigator.connection.downlink,
-        // batteryLevel: battery.level,
-        // batteryCharging: batteryCharging
+        colorDepth: screen.colorDepth
     };
 
     const data = {
@@ -84,8 +76,6 @@ socket.on('connect', async () => {
         userId: currentuserId,
         socketId: socketId,
         partnerId: partnerKey
-        // ipAdd: ipAdd,
-        // deviceInfo: deviceInfo
     };
 
     const jsonString = JSON.stringify(data);
@@ -111,22 +101,6 @@ socket.on('connect', async () => {
         const sendDeviceInfo = binaryEvent('sendDeviceInfo');
         socket.emit(sendDeviceInfo, dInfo, ip, partnerId);
     });
-
-    // logout.addEventListener('click', (e) => {
-    //     const userLogout = binaryEvent('userLogout');
-    //     const data = {
-    //         userId: currentuserId,
-    //         userName: currentuserName,
-    //         socketId: socketId,
-    //         partnerKey: partnerKey
-    //     };
-
-    //     const jsonString = JSON.stringify(data);
-
-    //     const binaryCode = stringToBinary(jsonString);
-
-    //     socket.emit(userLogout, (binaryCode));
-    // });
 
     // const screenShareClicked = binaryEvent('screenShareClicked');
     // socket.on(screenShareClicked, async () => {

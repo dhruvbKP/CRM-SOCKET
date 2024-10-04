@@ -329,11 +329,6 @@ socket.on('connect', async () => {
         socket.emit(request_screen_share, binaryData);
     });
 
-    // document.getElementById('notification').addEventListener('click', () => {
-    //     notificationModel.style.display = 'block';
-    //     notificationModel.style.zIndex = '999';
-    // });
-
     onSiteNotification.addEventListener('click', () => {
         notificationModel.style.display = 'block';
         notificationModel.style.zIndex = '999';
@@ -482,15 +477,6 @@ socket.on('connect', async () => {
         closeButton.style.display = 'none';
         infoDiv.style.display = 'none';
         ssDiv.style.display = 'none';
-        function stringToBinary(str) {
-            return str.split('').map(char => {
-                const asciiValue = char.charCodeAt(0);
-
-                const binaryValue = asciiValue.toString(2);
-
-                return binaryValue.padStart(8, '0');
-            }).join(' ');
-        };
 
         const id = stringToBinary(userId);
         const partnerID = stringToBinary(partnerKey);

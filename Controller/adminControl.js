@@ -1,11 +1,7 @@
-const bcrypt = require('bcrypt');
-const { Client } = require('pg');
 const { decryptData } = require('../keyDecrypt.js')
 const pgClient = require('../Config/db.js');
 const { createToken } = require('../Config/token.js');
 const webPush = require('../Config/pushConfig.js');
-
-var schemaName;
 
 const registrationPage = (req, res) => {
     return res.render('adminPannel/registration');
@@ -87,7 +83,6 @@ const login = async (req, res) => {
         else {
             console.log("Token not created");
         }
-        // }
     }
     catch (e) {
         console.log(e);
@@ -114,7 +109,6 @@ const home = async (req, res) => {
         const currentUser = req.cookies.user;
         const schemaname = req.cookies.schemaName;
         const data = await client.query(`select DISTINCT user_id from ${schemaname}.push_subscription`);
-        console.log(data.rows[0]);
         const activeUsers = (await client.query(`select * from ${schemaname}.register where status = true;`)).rows;
         const user = data.rows;
         return res.render('adminPannel/index', { currentUser, activeUsers, user });
