@@ -2,7 +2,7 @@ const express = require('express');
 const { validateAdminToken } = require('../Config/token.js');
 const routes = express.Router();
 
-const { home, login, loginPage, logout, notify, registration, registrationPage } = require('../Controller/admin.controller');
+const { home, login, loginPage, logout, notify, registration, registrationPage } = require('../Controller/adminControl.js');
 
 routes.get('/', loginPage);
 

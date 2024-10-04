@@ -1,20 +1,20 @@
 const express = require('express');
 const { validateToken } = require('../Config/token.js');
 
-const routes = express.Router();
+const routes = express.Router
 
-const userCtrl = require('../Controller/user.controller');
+const { loginPage, login, logout, registerpage, registration, home } = require('../Controller/userControl.js');
 
-routes.get('/', userCtrl.loginPage);
+routes.get('/', loginPage);
 
-routes.post('/login', userCtrl.login);
+routes.post('/login', login);
 
-routes.get('/logout', userCtrl.logout);
+routes.get('/logout', logout);
 
-routes.get('/registerPage', userCtrl.registerpage);
+routes.get('/registerPage', registerpage);
 
-routes.post('/registration', userCtrl.registration);
+routes.post('/registration', registration);
 
-routes.get('/home', validateToken, userCtrl.home);
+routes.get('/home', validateToken, home);
 
 module.exports = routes;
