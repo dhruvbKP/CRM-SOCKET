@@ -1,7 +1,7 @@
 const express = require('express');
 const { validateToken } = require('../Config/token.js');
 
-const routes = express.Router
+const routes = express.Router()
 
 const { loginPage, login, logout, registerpage, registration, home } = require('../Controller/userControl.js');
 
