@@ -124,16 +124,16 @@ const home = async (req, res) => {
 const notify = async (req, res) => {
     const client = await pgClient.connect();
     try {
-
         const { ids, body, title, partnerKey } = req.body;
         let [partnerid, name, secretkey] = await decryptData(partnerKey);
-        const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length))
+        const schemaName = 'partner' + '_' + partnerid + '_' + name.replace(/\s+/g, match => '_'.repeat(match.length));
 
         const payload = JSON.stringify({
             "title": body,
             "body": title,
+            "icon": 'http://localhost:8070/img/logo-mini.png',
             "vibrate": [200, 100, 200],
-            "data": { url: "http://localhost:8070/" },
+            "data": { url: "http://localhost:8070/"},
             "timestamp": Date.now(),
             "actions": [
                 { action: "Explore Now", title: "Explore Now", icon: "http://localhost:8070/send.png" },
@@ -152,7 +152,6 @@ const notify = async (req, res) => {
             }
         }
 
-        // Use a regular for...of loop to await each sendNotification call
         for (let subscription of subscriptionsAlluser) {
             try {
                 await webPush.sendNotification(subscription, payload);
@@ -174,5 +173,5 @@ const notify = async (req, res) => {
     finally {
         await client.release();
     }
-}; 
+};
 module.exports = { registrationPage, registration, loginPage, login, logout, home, notify }

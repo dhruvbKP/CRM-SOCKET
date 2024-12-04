@@ -3,7 +3,7 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     self.registration.showNotification(data.title, {
         body: data.body,
-        icon: 'http://localhost:8070/img/logo-mini.png',
+        icon: data.icon,
         data: data.data,
         vibrate: data.vibrate,
         timestamp: data.timestamp,
@@ -36,4 +36,3 @@ self.addEventListener('notificationclick', event => {
         clients.openWindow(notification.data.url);
     }
 });
-

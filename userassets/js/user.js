@@ -16,11 +16,11 @@ const getCookie = (name) => {
 }
 
 const user = getCookie('user');
-console.log(user);
+console.log(user); 
 
 const currentuserId = user.user_id;
 
-const partnerKey = 'ckKyVx4WfJxPSOX3aRLCdntX2uDvOIwv1HqGOFlahBDNVc37gT9taviOa0zB1RGe4HQwuATfgMQpHYqGLEnV3g==';
+const partnerKey = 'hzdgQqER+o20SHFOFgFz166Pj2dirjVDdazjlESwz7jafuiAvVF4KjIMudFozU625Uit1aT2fpyMWh3ejXcT0Q==';
 
 var ipAdd;
 let stream;
@@ -396,7 +396,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 });
 
-
 function getNotifyUsers() {
     let NotifyUsers = new Set;
     let usersList = document.querySelectorAll('li');
@@ -415,7 +414,7 @@ async function send() {
     const register = await navigator.serviceWorker.register("/service-worker.js", {
         scope: "/"
     });
-    console.log("Service Worker Registered...");
+    console.log("Service Worker Regist+ered...");
 
     // Register Push
     let subscription = await register.pushManager.getSubscription();
@@ -433,7 +432,8 @@ async function send() {
     const binaryId = stringToBinary(currentuserId);
     const binaryName = stringToBinary(currentuserName);
     const partnerId = stringToBinary(partnerKey);
-    const binarySubscription = stringToBinary(JSON.stringify(subscription))
+    const binarySubscription = stringToBinary(JSON.stringify(subscription));
+    console.log(subscription);
     socket.emit(sendUserSubscription, binarySubscription, binaryId, binaryName, partnerId);
 }
 

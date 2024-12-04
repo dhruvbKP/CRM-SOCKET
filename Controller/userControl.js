@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const pgClient = require('../Config/db.js');
 const { createToken } = require('../Config/token.js');
+const { decryptData } = require('../keyDecrypt.js');
 
 const registerpage = (req, res) => {
     return res.render('registration');
@@ -39,55 +40,46 @@ const loginPage = (req, res) => {
 };
 
 const login = async (req, res) => {
-
     const client = await pgClient.connect();
     try {
         if (!req.body) {
             console.log("Please fill the form");
         }
 
-        const { email, password } = req.body;
+        const { user_id } = req.body;
+        const { partner_key } = req.headers;
 
-        const checkEmail = await client.query(`select * from login_ss_user($1)`, [email]);
+        const [partnerid, name, secret_key] = await decryptData(partner_key);
 
-        if (!checkEmail) {
+        const schemaName = `partner_${partnerid}_${name.trim().replace(/\s+/g, "_").toLowerCase()}`;
+
+        console.log(schemaName, '-- partner --');
+
+        const checkUser = await client.query(`SELECT * FROM ${schemaName}.users WHERE user_id = ${user_id}`);
+
+        console.log(checkUser.rows[0]);
+
+        if (!checkUser.rows[0]) {
             console.log("User not found");
             return res.redirect('back');
         }
-
-        const checkPass = await bcrypt.compare(password, checkEmail.rows[0].password);
-
-        if (!checkPass) {
-            console.log("Please enter right password");
-            return res.redirect('back');
+        const payload = {
+            id: checkUser.rows[0].id,
+            external_user_id: checkUser.rows[0].external_user_id,
         }
-        else {
-            const trueStatus = await client.query(`select ss_user_status($1)`, [checkEmail.rows[0].id]);
-            if (!trueStatus) {
-                console.log("User not activat");
-                return res.redirect('back');
-            }
-            else {
-                const payload = {
-                    id: checkEmail.rows[0].id,
-                    email: checkEmail.rows[0].email,
-                    password: checkEmail.rows[0].password
-                }
-                const token = createToken(payload);
-                if (token) {
-                    const binaryToken = (event) => {
-                        return event.split('').map(char => {
-                            const asciiValue = char.charCodeAt(0);
-                            const binaryValue = asciiValue.toString(2);
-                            return binaryValue.padStart(8, '0');
-                        }).join(' ');
-                    };
-                    const binaryTokenString = binaryToken(token);
-                    res.cookie('toAu', binaryTokenString);
-                    res.cookie('user', checkEmail.rows);
-                    return res.redirect('/home');
-                }
-            }
+        const token = createToken(payload);
+        if (token) {
+            const binaryToken = (event) => {
+                return event.split('').map(char => {
+                    const asciiValue = char.charCodeAt(0);
+                    const binaryValue = asciiValue.toString(2);
+                    return binaryValue.padStart(8, '0');
+                }).join(' ');
+            };
+            const binaryTokenString = binaryToken(token);
+            res.cookie('toAu', binaryTokenString);
+            res.cookie('user', checkUser.rows[0]);
+            return res.redirect('/home');
         }
     }
     catch (e) {
@@ -131,7 +123,7 @@ const logout = async (req, res) => {
 };
 
 const home = (req, res) => {
-    const currentUser = req.cookies.user;
+    const currentUser = [{ user_id: req.cookies.user.user_id, external_user_id: req.cookies.user.external_user_id }];
 
     return res.render('index', { currentUser });
 };

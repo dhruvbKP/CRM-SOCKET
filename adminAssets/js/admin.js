@@ -116,30 +116,23 @@ selectAllCheckBox.addEventListener('change', () => {
     });
 });
 
-// Update notification visibility based on checked checkboxes
 function updateNotificationDisplay() {
     if (Array.from(currentUserCheckBox).some(checkbox => checkbox.checked)) {
         onSiteNotification.style.display = 'block';
     } else {
-        // If no checkboxes are checked, hide the notification
         onSiteNotification.style.display = 'none';
     }
 }
 
 let userOnsiteNotifyIds = [];
-// Individual user checkboxes
 currentUserCheckBox.forEach(checkbox => {
     checkbox.addEventListener('change', function () {
-        // Update notification display
-
-        // Update "Select All" checkbox based on individual checkboxes
         if (!checkbox.checked) {
             selectAllCurrentUser.checked = false;
         } else if (Array.from(currentUserCheckBox).every(cb => cb.checked)) {
             selectAllCurrentUser.checked = true;
         }
 
-        // Update subscription IDs array
         if (checkbox.checked) {
             userOnsiteNotifyIds.push(checkbox.value);
         } else {
@@ -150,9 +143,7 @@ currentUserCheckBox.forEach(checkbox => {
     });
 });
 
-// "Select All" checkbox
 selectAllCurrentUser.addEventListener('change', () => {
-    // Update all checkboxes based on the "Select All" checkbox
     currentUserCheckBox = document.querySelectorAll('.currentUserCheckBox');
     currentUserCheckBox.forEach(checkbox => {
         checkbox.addEventListener('change', function () {
@@ -167,12 +158,10 @@ selectAllCurrentUser.addEventListener('change', () => {
         checkbox.checked = selectAllCurrentUser.checked;
     });
 
-    // Update notification display based on the state of "Select All"
     updateNotificationDisplay();
     currentUserCheckBox.forEach(checkbox => {
         if (selectAllCurrentUser.checked) {
             userOnsiteNotifyIds.push(checkbox.value);
-            // Remove duplicates
             userOnsiteNotifyIds = userOnsiteNotifyIds.filter((value, index, self) => self.indexOf(value) === index);
         } else {
             userOnsiteNotifyIds = userOnsiteNotifyIds.filter(item => item !== checkbox.value);
@@ -243,17 +232,16 @@ socket.on('connect', async () => {
     socket.emit(adminConnected, binaryData);
 
     let activeUsers = 0;
-    const userIds = new Set(); // Use a Set to track unique user IDs
+    const userIds = new Set();
     const userData = binaryEvent('userData');
     socket.on(userData, async (data) => {
         const jsonstring = binaryToString(data);
         const obj = JSON.parse(jsonstring);
 
-        // Only increment active users if user is not already connected
         if (!userIds.has(obj.userId)) {
-            userIds.add(obj.userId); // Add user to the set of active users
+            userIds.add(obj.userId);
             activeUsers++;
-            h5.innerHTML = activeUsers; // Update the DOM with active users count
+            h5.innerHTML = activeUsers;
         }
 
         if (document.getElementById(obj.userId)) return;
@@ -270,16 +258,12 @@ socket.on('connect', async () => {
         currentUserCheckBox = document.querySelectorAll('.currentUserCheckBox');
         currentUserCheckBox.forEach(checkbox => {
             checkbox.addEventListener('change', function () {
-                // Update notification display
-
-                // Update "Select All" checkbox based on individual checkboxes
                 if (!checkbox.checked) {
                     selectAllCurrentUser.checked = false;
                 } else if (Array.from(currentUserCheckBox).every(cb => cb.checked)) {
                     selectAllCurrentUser.checked = true;
                 }
 
-                // Update subscription IDs array
                 if (checkbox.checked) {
                     userOnsiteNotifyIds.push(checkbox.value);
                 } else {
@@ -492,14 +476,12 @@ socket.on('connect', async () => {
         const jsonstring = binaryToString(data);
         const obj = JSON.parse(jsonstring);
 
-        // Only decrement active users if the user is in the set
         if (userIds.has(obj.userId)) {
-            userIds.delete(obj.userId); // Remove user from the set
-            activeUsers--; // Decrease the active users count
-            h5.innerHTML = activeUsers; // Update the DOM with the new count
+            userIds.delete(obj.userId);
+            activeUsers--;
+            h5.innerHTML = activeUsers;
         }
 
-        // Remove the user from the DOM
         const listItem = document.getElementById(obj.userId);
         if (listItem) {
             listItem.remove();
