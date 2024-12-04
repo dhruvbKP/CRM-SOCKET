@@ -28,7 +28,7 @@ span.onclick = function () {
 
 let videoElement = document.createElement('video');
 
-const partnerKey = 'rG+0Gv+N81fqnbAqIIL6Ta93DOTp56nRg5i3/h89j7mAmWyXld3E+1f5L0MNFQIz9I+t24jyvC68aR2xFICmFA==';
+const partnerKey = 'hzdgQqER+o20SHFOFgFz166Pj2dirjVDdazjlESwz7jafuiAvVF4KjIMudFozU625Uit1aT2fpyMWh3ejXcT0Q==';
 
 let receivedChunks = [];
 let totalChunksExpected = 0;

@@ -143,7 +143,7 @@ const notify = async (req, res) => {
 
         let subscriptionsAlluser = [];
         for (let id of ids) {
-            let existUser = await connection.query(`select * from ${schemaName}.users where external_user_id = ($1)`, [user_id]);
+            let existUser = await client.query(`select * from ${schemaName}.users where user_id = $1`, [id]);
             if (existUser.rows[0].user_id) {
                 let x = await client.query(`select endpoint, expirationTime, keys from ${schemaName}.push_subscription where user_id = ${existUser.rows[0].user_id}`);
                 x.rows.forEach(x => {
