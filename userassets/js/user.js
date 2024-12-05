@@ -16,7 +16,6 @@ const getCookie = (name) => {
 }
 
 const user = getCookie('user');
-console.log(user); 
 
 const currentuserId = user.user_id;
 
@@ -387,7 +386,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 console.log('Notification permission denied.');
             }
         });
-    }else if (Notification.permission === "granted"){
+    } else if (Notification.permission === "granted") {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             send().catch(err => {
                 console.error(err)

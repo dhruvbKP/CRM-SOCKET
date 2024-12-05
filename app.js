@@ -316,10 +316,6 @@ io.on('connection', async (socket) => {
 
         const sendNotification = binaryEvent('sendNotification');
         parsedData.id.forEach(element => {
-            console.log(parsedData);
-            console.log(users);
-            console.log(users[parsedData.partnerId]);
-            console.log(element);
             const userSocketId = users[parsedData.partnerId][parseInt(element)];
             socket.to(userSocketId).emit(sendNotification, (binaryData));
         });
