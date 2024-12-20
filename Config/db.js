@@ -3,11 +3,11 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const pool = new Pool({
-    user: process.env.USER,
-    host: process.env.HOST,
-    database: process.env.DATABASE,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    host: "45.92.9.232",
+    port: 5432,
+    user: "casi-demo",
+    password: "wkN2gJu",
+    database: "CRM"
 });
 
 module.exports = pool;
